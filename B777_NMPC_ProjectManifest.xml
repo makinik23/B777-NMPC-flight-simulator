@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectManifest name="B777_NMPC_FlightSimulator" version="1.0" language="pl" created_for="Julian Kaźmierski">
+  <Metadata>
+    <Title>Symulator mechaniki lotu Boeing 777-like z autopilotem Nonlinear MPC w MATLAB/Simulink</Title>
+    <ShortName>B777 NMPC Flight Simulator</ShortName>
+    <MainGoal>Stworzenie nieliniowego symulatora mechaniki lotu dużego samolotu pasażerskiego typu Boeing 777-like oraz autopilota opartego o Nonlinear Model Predictive Control, z trybami podłużnymi, bocznymi, LNAV/VNAV i ILS.</MainGoal>
+    <ImportantNote>Projekt nie ma odtwarzać certyfikowanego ani dokładnego modelu Boeinga 777. Celem jest inżynierski, edukacyjny model 777-like oparty o publiczne dane, przybliżone modele aerodynamiczne i walidację względem dostępnych źródeł osiągowych.</ImportantNote>
+  </Metadata>
+  <Assumptions>
+    <Assumption>Bazowy wariant: Boeing 777-300ER lub 777-200LR/300ER/F jako rodzina referencyjna z danych ACAP.</Assumption>
+    <Assumption>Pełny plant symulacyjny: nieliniowy model 6-DOF w Simulinku, najlepiej z blokiem 6DOF Quaternion z Aerospace Blockset.</Assumption>
+    <Assumption>Model predykcyjny NMPC: model zredukowany, osobny dla kanału podłużnego, bocznego i później zintegrowanego.</Assumption>
+    <Assumption>Dane aerodynamiczne Boeinga nie są publiczne, dlatego współczynniki aerodynamiczne będą przybliżane, kalibrowane i walidowane.</Assumption>
+    <Assumption>Projekt prowadzony w MATLAB/Simulink z użyciem Aerospace Toolbox, Aerospace Blockset i Model Predictive Control Toolbox.</Assumption>
+    <Assumption>Najpierw należy stworzyć latający, trymowalny plant, dopiero potem implementować NMPC.</Assumption>
+  </Assumptions>
+  <Toolchain>
+    <Required>
+      <Tool>MATLAB</Tool>
+      <Tool>Simulink</Tool>
+      <Tool>Aerospace Toolbox</Tool>
+      <Tool>Aerospace Blockset</Tool>
+      <Tool>Model Predictive Control Toolbox</Tool>
+      <Tool>Optimization Toolbox</Tool>
+      <Tool>Control System Toolbox</Tool>
+      <Tool>Simulink Control Design</Tool>
+    </Required>
+    <Optional>
+      <Tool>Stateflow do logiki trybów autopilota</Tool>
+      <Tool>Simulink 3D Animation lub FlightGear do wizualizacji</Tool>
+      <Tool>OpenAP do walidacji osiągów</Tool>
+      <Tool>DATCOM/OpenVSP/VSPAERO do przybliżania danych aerodynamicznych</Tool>
+    </Optional>
+  </Toolchain>
+  <Architecture>
+    <Description>Architektura składa się z FMS/MCP, Mode Managera, generatora trajektorii, regulatorów NMPC, alokacji sterowania, dynamiki aktuatorów, nieliniowego plantu 6-DOF oraz modeli sensorów.</Description>
+    <SignalFlow>
+      <Step>B777-like FMS / MCP</Step>
+      <Step>Mode Manager</Step>
+      <Step>Trajectory Generator</Step>
+      <Step>Nonlinear MPC</Step>
+      <Step>Flight Control Allocation</Step>
+      <Step>Actuator Dynamics</Step>
+      <Step>B777-like 6-DOF Plant</Step>
+      <Step>Sensors / ADC / IRS / Navigation</Step>
+      <Step>Feedback to Autopilot</Step>
+    </SignalFlow>
+  </Architecture>
+  <DirectoryStructure>
+    <Folder name="data">
+      <File>b777_geometry.m</File>
+      <File>b777_mass_inertia.m</File>
+      <File>b777_aero_tables.m</File>
+      <File>b777_engine_model.m</File>
+      <File>b777_configs.m</File>
+      <File>reference_cases.m</File>
+    </Folder>
+    <Folder name="plant">
+      <File>B777_6DOF_Plant.slx</File>
+      <File>aero_forces_moments.m</File>
+      <File>engine_forces_moments.m</File>
+      <File>gear_model.m</File>
+      <File>actuator_model.m</File>
+      <File>sensor_model.m</File>
+    </Folder>
+    <Folder name="nmpc">
+      <File>create_longitudinal_nmpc.m</File>
+      <File>create_lateral_nmpc.m</File>
+      <File>create_integrated_nmpc.m</File>
+      <File>b777_longitudinal_state_fcn.m</File>
+      <File>b777_longitudinal_output_fcn.m</File>
+      <File>b777_longitudinal_cost.m</File>
+      <File>b777_longitudinal_constraints.m</File>
+      <File>b777_lateral_state_fcn.m</File>
+      <File>b777_lateral_output_fcn.m</File>
+      <File>b777_lateral_cost.m</File>
+      <File>b777_lateral_constraints.m</File>
+      <File>b777_integrated_state_fcn.m</File>
+      <File>b777_integrated_output_fcn.m</File>
+      <File>b777_integrated_cost.m</File>
+      <File>b777_integrated_constraints.m</File>
+      <File>validate_nmpc.m</File>
+    </Folder>
+    <Folder name="guidance">
+      <File>mcp_logic.m</File>
+      <File>mode_manager.m</File>
+      <File>lnav_path_generator.m</File>
+      <File>vnav_profile_generator.m</File>
+      <File>ils_generator.m</File>
+      <File>trajectory_reference.m</File>
+    </Folder>
+    <Folder name="validation">
+      <File>trim_cruise.m</File>
+      <File>trim_climb.m</File>
+      <File>trim_descent.m</File>
+      <File>trim_approach.m</File>
+      <File>test_alt_hold.m</File>
+      <File>test_speed_hold.m</File>
+      <File>test_hdg_select.m</File>
+      <File>test_lnav.m</File>
+      <File>test_vnav.m</File>
+      <File>test_ils_capture.m</File>
+      <File>compare_openap.m</File>
+    </Folder>
+    <Folder name="models">
+      <File>B777_Longitudinal_NMPC.slx</File>
+      <File>B777_Lateral_NMPC.slx</File>
+      <File>B777_Integrated_NMPC.slx</File>
+      <File>B777_FullMission_NMPC.slx</File>
+    </Folder>
+    <Folder name="plots">
+      <File>logged_simulation_plots</File>
+      <File>trim_results</File>
+      <File>nmpc_response_plots</File>
+      <File>validation_results</File>
+    </Folder>
+    <Folder name="docs">
+      <File>project_notes.md</File>
+      <File>model_assumptions.md</File>
+      <File>validation_report.md</File>
+      <File>sources.md</File>
+    </Folder>
+  </DirectoryStructure>
+  <PlantModel>
+    <Name>B777_6DOF_Plant</Name>
+    <RecommendedSimulinkBlock>6DOF Quaternion</RecommendedSimulinkBlock>
+    <Description>Pełny nieliniowy plant 6-DOF powinien zawierać siły i momenty aerodynamiczne, ciąg silników, grawitację, konfigurację klap, podwozie, masę, bezwładność, aktuatory i sensory.</Description>
+    <LoggedStates>
+      <State>h</State>
+      <State>Vtas</State>
+      <State>Mach</State>
+      <State>alpha</State>
+      <State>beta</State>
+      <State>phi</State>
+      <State>theta</State>
+      <State>psi</State>
+      <State>p</State>
+      <State>q</State>
+      <State>r</State>
+      <State>position_NED</State>
+      <State>quaternion</State>
+      <State>Nz</State>
+      <State>throttle</State>
+      <State>elevator</State>
+      <State>aileron</State>
+      <State>rudder</State>
+    </LoggedStates>
+    <Aerodynamics>
+      <InitialModel>Prosty model współczynników: CL, CD, Cm, CY, Cl, Cn jako funkcje alpha, beta, p, q, r, wychyleń sterów, Macha i konfiguracji.</InitialModel>
+      <TargetModel>Docelowo używać tablic aerodynamicznych zależnych od Mach, alpha, beta, konfiguracji klap, podwozia, spoilerów i wychyleń sterów.</TargetModel>
+    </Aerodynamics>
+    <Engine>
+      <InitialModel>T = throttle * Tmax(h, Mach) z dynamiką spool-up pierwszego rzędu.</InitialModel>
+      <TargetModel>Tablice thrust i fuel flow jako funkcje wysokości, Macha i throttle.</TargetModel>
+    </Engine>
+  </PlantModel>
+  <NMPCDesign>
+    <GeneralStrategy>Nie zaczynać od jednego dużego NMPC dla całego 6-DOF. Najpierw zbudować osobny Longitudinal NMPC, potem Lateral NMPC, a dopiero później Integrated Trajectory NMPC.</GeneralStrategy>
+    <Controller name="Longitudinal_NMPC">
+      <Purpose>Sterowanie wysokością, prędkością, kątem toru lotu, pitch i ciągiem.</Purpose>
+      <States>
+        <State>V</State>
+        <State>alpha</State>
+        <State>q</State>
+        <State>theta</State>
+        <State>h</State>
+        <State>T</State>
+      </States>
+      <Inputs>
+        <Input>elevator_command</Input>
+        <Input>throttle_command</Input>
+      </Inputs>
+      <Outputs>
+        <Output>V</Output>
+        <Output>alpha</Output>
+        <Output>theta</Output>
+        <Output>h</Output>
+        <Output>gamma</Output>
+      </Outputs>
+      <SupportedModes>
+        <Mode>PITCH_HOLD</Mode>
+        <Mode>ALT_HOLD</Mode>
+        <Mode>VS</Mode>
+        <Mode>FLCH</Mode>
+        <Mode>VNAV_PATH_SIMPLIFIED</Mode>
+        <Mode>SPEED_HOLD</Mode>
+        <Mode>GLIDESLOPE_CAPTURE</Mode>
+      </SupportedModes>
+      <Constraints>
+        <Constraint>alpha_min = -4 deg</Constraint>
+        <Constraint>alpha_max = 12 deg</Constraint>
+        <Constraint>theta_min = -10 deg</Constraint>
+        <Constraint>theta_max = 20 deg</Constraint>
+        <Constraint>gamma_min = -6 deg</Constraint>
+        <Constraint>gamma_max = 8 deg</Constraint>
+        <Constraint>Nz_min = 0.5 g</Constraint>
+        <Constraint>Nz_max = 1.4 g</Constraint>
+        <Constraint>elevator_min = -25 deg</Constraint>
+        <Constraint>elevator_max = 25 deg</Constraint>
+        <Constraint>elevator_rate_limit = +/- 10 deg/s</Constraint>
+        <Constraint>throttle_min = 0</Constraint>
+        <Constraint>throttle_max = 1</Constraint>
+        <Constraint>throttle_rate_limit = +/- 0.15 / s</Constraint>
+      </Constraints>
+      <SampleTime>0.2 s</SampleTime>
+      <PredictionHorizon>40</PredictionHorizon>
+      <ControlHorizon>10</ControlHorizon>
+    </Controller>
+    <Controller name="Lateral_NMPC">
+      <Purpose>Sterowanie heading, track, bank angle, cross-track error, sideslip i localizer.</Purpose>
+      <States>
+        <State>beta</State>
+        <State>p</State>
+        <State>r</State>
+        <State>phi</State>
+        <State>psi</State>
+        <State>cross_track_error</State>
+      </States>
+      <Inputs>
+        <Input>aileron_command</Input>
+        <Input>rudder_command</Input>
+      </Inputs>
+      <SupportedModes>
+        <Mode>ROLL_HOLD</Mode>
+        <Mode>HDG_SEL</Mode>
+        <Mode>TRK_HOLD</Mode>
+        <Mode>LNAV_SIMPLIFIED</Mode>
+        <Mode>LOCALIZER_CAPTURE</Mode>
+      </SupportedModes>
+      <Constraints>
+        <Constraint>bank_angle_limit = +/- 30 deg normal operation</Constraint>
+        <Constraint>aileron_limit = +/- 25 deg</Constraint>
+        <Constraint>rudder_limit = +/- 30 deg</Constraint>
+        <Constraint>aileron_rate_limit = project-defined</Constraint>
+        <Constraint>rudder_rate_limit = project-defined</Constraint>
+        <Constraint>sideslip should be minimized</Constraint>
+      </Constraints>
+      <SampleTime>0.2 s</SampleTime>
+      <PredictionHorizon>35</PredictionHorizon>
+      <ControlHorizon>8</ControlHorizon>
+    </Controller>
+    <Controller name="Integrated_Trajectory_NMPC">
+      <Purpose>Docelowy regulator zintegrowany do LNAV, VNAV, ILS, zarządzania energią i ograniczeniami.</Purpose>
+      <States>
+        <State>V</State>
+        <State>alpha</State>
+        <State>beta</State>
+        <State>p</State>
+        <State>q</State>
+        <State>r</State>
+        <State>phi</State>
+        <State>theta</State>
+        <State>psi</State>
+        <State>h</State>
+        <State>path_distance_s</State>
+        <State>cross_track_error</State>
+        <State>T</State>
+      </States>
+      <Inputs>
+        <Input>elevator_command</Input>
+        <Input>aileron_command</Input>
+        <Input>rudder_command</Input>
+        <Input>throttle_command</Input>
+      </Inputs>
+      <SampleTime>0.5 s</SampleTime>
+      <PredictionHorizon>40</PredictionHorizon>
+      <ControlHorizon>10</ControlHorizon>
+    </Controller>
+  </NMPCDesign>
+  <Milestones>
+    <Milestone id="M1" name="Nonlinear 6-DOF Plant">
+      <Description>Zbudować model 6-DOF samolotu B777-like bez autopilota.</Description>
+      <Tasks>
+        <Task>Zebrać dane geometrii i mas z Boeing ACAP.</Task>
+        <Task>Zaimplementować atmosferę ISA.</Task>
+        <Task>Zaimplementować prostą aerodynamikę.</Task>
+        <Task>Zaimplementować prosty model silników.</Task>
+        <Task>Podłączyć siły i momenty do bloku 6DOF Quaternion.</Task>
+        <Task>Zalogować podstawowe stany lotu.</Task>
+      </Tasks>
+    </Milestone>
+    <Milestone id="M2" name="Trim and Basic Stability">
+      <Description>Samolot ma dać się trymować i zachowywać sensownie dynamicznie.</Description>
+      <Tasks>
+        <Task>Napisać trim_cruise.m.</Task>
+        <Task>Napisać trim_climb.m.</Task>
+        <Task>Napisać trim_descent.m.</Task>
+        <Task>Napisać trim_approach.m.</Task>
+        <Task>Przetestować phugoid, short period, Dutch roll i roll mode.</Task>
+        <Task>Porównać osiągi z publicznymi źródłami, np. OpenAP.</Task>
+      </Tasks>
+    </Milestone>
+    <Milestone id="M3" name="Longitudinal NMPC">
+      <Description>NMPC utrzymuje wysokość, prędkość i ścieżkę pionową.</Description>
+      <Tasks>
+        <Task>Zaimplementować model x = [V, alpha, q, theta, h, T].</Task>
+        <Task>Zaimplementować state function, output function, cost i constraints.</Task>
+        <Task>Przetestować ALT HOLD, SPEED HOLD, VS, FLCH i VNAV PATH simplified.</Task>
+        <Task>Uruchomić regulator w Simulinku przez Nonlinear MPC Controller block.</Task>
+      </Tasks>
+    </Milestone>
+    <Milestone id="M4" name="Lateral NMPC">
+      <Description>NMPC steruje kursem, przechyleniem i błędem bocznym.</Description>
+      <Tasks>
+        <Task>Zaimplementować model x = [beta, p, r, phi, psi, crossTrackError].</Task>
+        <Task>Zaimplementować constraints dla bank angle, aileron, rudder i sideslip.</Task>
+        <Task>Przetestować HDG SEL i przechwycenie prostej ścieżki LNAV.</Task>
+        <Task>Dodać uproszczony localizer capture.</Task>
+      </Tasks>
+    </Milestone>
+    <Milestone id="M5" name="Mode Manager and MCP">
+      <Description>Autopilot ma tryby, uzbrajanie i przechwytywanie modów.</Description>
+      <Tasks>
+        <Task>Dodać MCP: selected speed, heading, altitude, vertical speed.</Task>
+        <Task>Dodać mode manager: armed/active modes.</Task>
+        <Task>Dodać reference generator dla h_ref, V_ref, gamma_ref, psi_ref, crossTrack_ref.</Task>
+        <Task>Rozważyć Stateflow dla logiki trybów.</Task>
+      </Tasks>
+    </Milestone>
+    <Milestone id="M6" name="Integrated NMPC and Full Mission">
+      <Description>Pełny demonstrator misji z LNAV/VNAV/ILS.</Description>
+      <Tasks>
+        <Task>Zintegrować Longitudinal i Lateral NMPC lub stworzyć Integrated NMPC.</Task>
+        <Task>Dodać LNAV po waypointach.</Task>
+        <Task>Dodać VNAV descent z ograniczeniami wysokości/prędkości.</Task>
+        <Task>Dodać LOC i GS capture.</Task>
+        <Task>Wykonać demonstrację: takeoff ręczny, AP engage, climb, cruise, descent, ILS approach.</Task>
+      </Tasks>
+    </Milestone>
+  </Milestones>
+  <ValidationTests>
+    <Test id="T1" name="ALT HOLD">
+      <Description>Utrzymanie wysokości w cruise bez wiatru.</Description>
+    </Test>
+    <Test id="T2" name="SPEED HOLD">
+      <Description>Skok zadanej prędkości i odpowiedź autothrottle/NMPC.</Description>
+    </Test>
+    <Test id="T3" name="VS MODE">
+      <Description>Zadane +1500 ft/min i -1500 ft/min.</Description>
+    </Test>
+    <Test id="T4" name="FLCH">
+      <Description>Wznoszenie przy utrzymaniu IAS/Mach.</Description>
+    </Test>
+    <Test id="T5" name="HDG SEL">
+      <Description>Zmiana kursu o 30 deg.</Description>
+    </Test>
+    <Test id="T6" name="LNAV">
+      <Description>Przechwycenie ścieżki z offsetu 2 NM.</Description>
+    </Test>
+    <Test id="T7" name="VNAV DESCENT">
+      <Description>Zniżanie z ograniczeniami wysokości na waypointach.</Description>
+    </Test>
+    <Test id="T8" name="LOC CAPTURE">
+      <Description>Przechwycenie localizera.</Description>
+    </Test>
+    <Test id="T9" name="GS CAPTURE">
+      <Description>Przechwycenie glideslope.</Description>
+    </Test>
+    <Test id="T10" name="CROSSWIND APPROACH">
+      <Description>Podejście z bocznym wiatrem i oceną błędu ścieżki.</Description>
+    </Test>
+  </ValidationTests>
+  <RecommendedLogging>
+    <Signal>h(t)</Signal>
+    <Signal>V(t)</Signal>
+    <Signal>Mach(t)</Signal>
+    <Signal>alpha(t)</Signal>
+    <Signal>beta(t)</Signal>
+    <Signal>theta(t)</Signal>
+    <Signal>phi(t)</Signal>
+    <Signal>psi(t)</Signal>
+    <Signal>gamma(t)</Signal>
+    <Signal>p(t)</Signal>
+    <Signal>q(t)</Signal>
+    <Signal>r(t)</Signal>
+    <Signal>cross_track_error(t)</Signal>
+    <Signal>vertical_path_error(t)</Signal>
+    <Signal>elevator(t)</Signal>
+    <Signal>aileron(t)</Signal>
+    <Signal>rudder(t)</Signal>
+    <Signal>throttle(t)</Signal>
+    <Signal>constraint_violation(t)</Signal>
+    <Signal>solver_exit_flag(t)</Signal>
+    <Signal>solver_computation_time(t)</Signal>
+  </RecommendedLogging>
+  <Risks>
+    <Risk name="Zbyt ciężki NMPC">
+      <Mitigation>Najpierw osobny longitudinal i lateral NMPC, dopiero później integrated NMPC.</Mitigation>
+    </Risk>
+    <Risk name="Zły trim plantu">
+      <Mitigation>Najpierw walidacja plantu i testy dynamiczne, potem autopilot.</Mitigation>
+    </Risk>
+    <Risk name="Brak danych aerodynamicznych Boeinga">
+      <Mitigation>Użyć modelu przybliżonego, DATCOM/OpenVSP/OpenAP i kalibracji osiągów.</Mitigation>
+    </Risk>
+    <Risk name="Zbyt restrykcyjne ograniczenia">
+      <Mitigation>Zacząć od soft constraints i stopniowo zaostrzać.</Mitigation>
+    </Risk>
+    <Risk name="Za dużo trybów naraz">
+      <Mitigation>Implementować kolejno: ALT HOLD, SPEED HOLD, HDG SEL, LNAV, VNAV, ILS.</Mitigation>
+    </Risk>
+  </Risks>
+  <Sources>
+    <Source>
+      <Title>MathWorks Aerospace Toolbox Documentation</Title>
+      <URL>https://www.mathworks.com/help/aerotbx/index.html</URL>
+    </Source>
+    <Source>
+      <Title>MathWorks Aerospace Blockset Documentation</Title>
+      <URL>https://www.mathworks.com/products/aerospace-blockset.html</URL>
+    </Source>
+    <Source>
+      <Title>MathWorks 6DOF Quaternion Block</Title>
+      <URL>https://www.mathworks.com/help/aeroblks/6dofquaternion.html</URL>
+    </Source>
+    <Source>
+      <Title>MathWorks Model Predictive Control Toolbox</Title>
+      <URL>https://www.mathworks.com/help/mpc/index.html</URL>
+    </Source>
+    <Source>
+      <Title>MathWorks nlmpc Documentation</Title>
+      <URL>https://www.mathworks.com/help/mpc/ref/nlmpc.html</URL>
+    </Source>
+    <Source>
+      <Title>Boeing Airport Planning Manuals</Title>
+      <URL>https://www.boeing.com/commercial/airports/plan-manuals</URL>
+    </Source>
+    <Source>
+      <Title>Boeing 777-200LR/300ER/F ACAP PDF</Title>
+      <URL>https://www.boeing.com/content/dam/boeing/boeingdotcom/commercial/airports/acaps/777-200LR-300ER-F_Rev_G.pdf</URL>
+    </Source>
+    <Source>
+      <Title>OpenAP</Title>
+      <URL>https://openap.dev/</URL>
+    </Source>
+    <Source>
+      <Title>EUROCONTROL BADA</Title>
+      <URL>https://www.eurocontrol.int/model/bada</URL>
+    </Source>
+    <Source>
+      <Title>JSBSim Reference Manual</Title>
+      <URL>https://jsbsim-team.github.io/jsbsim-reference-manual/</URL>
+    </Source>
+  </Sources>
+  <ImmediateNextSteps>
+    <Step>Utworzyć folder projektu B777_NMPC_Project.</Step>
+    <Step>Utworzyć katalogi: data, plant, nmpc, guidance, validation, models, plots, docs.</Step>
+    <Step>Zacząć od plików b777_geometry.m, b777_mass_inertia.m, b777_aero_simple.m, b777_engine_simple.m.</Step>
+    <Step>Zbudować B777_6DOF_Plant.slx z blokiem 6DOF Quaternion.</Step>
+    <Step>Dopiero po działającym plancie rozpocząć create_longitudinal_nmpc.m.</Step>
+  </ImmediateNextSteps>
+</ProjectManifest>
