@@ -77,7 +77,7 @@
     <Folder name="plant">
       <File>B777_6DOF_Plant.slx</File>
       <File>b777_aero_forces_moments.m</File>
-      <File>engine_forces_moments.m</File>
+      <File>b777_engine_forces_moments.m</File>
       <File>gear_model.m</File>
       <File>actuator_model.m</File>
       <File>sensor_model.m</File>
@@ -154,6 +154,7 @@
       <File>test_modeling_conventions.m</File>
       <File>test_aircraft_data.m</File>
       <File>test_aerodynamic_database.m</File>
+      <File>test_engine_loads.m</File>
     </Folder>
     <Folder name="tests">
       <File>run_feature_tests.m</File>
@@ -217,7 +218,7 @@
       <TargetModel>Use aerodynamic tables dependent on Mach, alpha, beta, flap configuration, landing gear, spoilers and control-surface deflections.</TargetModel>
     </Aerodynamics>
     <Engine>
-      <InitialModel>T = throttle * Tmax(h, Mach) with first-order spool-up dynamics.</InitialModel>
+      <InitialModel>Idle-to-maximum throttle mapping, altitude/Mach thrust lapse and first-order spool dynamics are implemented in b777_engine_model.m and b777_engine_forces_moments.m.</InitialModel>
       <TargetModel>Thrust and fuel-flow tables as functions of altitude, Mach number and throttle command.</TargetModel>
     </Engine>
   </PlantModel>

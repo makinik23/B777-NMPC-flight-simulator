@@ -32,6 +32,7 @@ The current implementation contains the following data modules:
     \item \texttt{b777\_geometry.m}, which defines B777-300ER-like geometry and reference dimensions,
     \item \texttt{b777\_mass\_inertia.m}, which defines mass envelope values and first-cut inertia estimates,
     \item \texttt{b777\_atmosphere\_isa.m}, which provides a simple ISA atmosphere model,
+    \item \texttt{b777\_engine\_model.m}, which defines the first B777-like propulsion seed and thrust-lapse interface,
     \item \texttt{b777\_aero\_database.m}, which defines the staged aerodynamic database interface and source inventory,
     \item \texttt{b777\_aero\_clean\_crm\_seed.m}, which exposes the NASA CRM clean Mach-alpha grid,
     \item \texttt{b777\_aero\_read\_crm\_clean\_grid\_csv.m}, which reads the curated NASA CRM clean grid,
@@ -125,12 +126,35 @@ outputs and are not part of the source repository.
 
 The file \texttt{startup.m} configures the MATLAB path by adding the project subdirectories required by the current implementation. It avoids relying on the user's current MATLAB path and makes the execution of feature tests repeatable from a clean MATLAB session.
 
-\section{Feature Tests}
+\section{Plant Adapters and Feature Tests}
 
 The plant directory now includes \texttt{b777\_aero\_forces\_moments.m}, which is the first plant-facing aerodynamic load adapter. It completes the atmosphere-dependent quantities required by the coefficient database, computes dynamic pressure, converts wind-axis lift and drag to body-axis force components, scales aerodynamic moments and applies the configured centre-of-gravity shift.
 
+The plant directory also includes \texttt{b777\_engine\_forces\_moments.m}. This
+adapter reads the propulsion seed, computes local maximum and idle thrust from
+altitude and Mach number, maps throttle commands to commanded thrust, evaluates
+the first-order spool derivatives and converts the left and right engine
+thrust states into body-axis forces and moments using the engine positions from
+the geometry module.
+
 The project includes feature-oriented MATLAB checks under \path{tests/features}. The project-structure test checks the expected top-level folders. The modelling-conventions test checks frame definitions, state-vector sizes and input-vector sizes. The aircraft-data test validates the current geometry, mass, inertia, atmosphere and reference-case data. The aerodynamic-database test checks the staged aerodynamic database interface, source inventory, derivative inventory, CRM clean-grid values, DATCOM-ready residual derivative effects, the reproducible DATCOM Mach-grid, control-grid and derived gap-fill candidate status, trim-validation and modal-validation evidence, CRM-HL/DATCOM-ready high-lift metadata, clean/approach/landing behaviour, aerodynamic force signs and the reference-point-to-CG moment shift. These checks are not substitutes for physical validation, but they catch interface errors early.
+
+The engine-loads feature test checks static thrust consistency with the
+geometry module, altitude/Mach thrust lapse, idle-to-maximum throttle mapping,
+symmetric force and pitch-moment generation, asymmetric yaw-moment generation
+and the signs of the first-order thrust-spool derivatives.
 
 \section{Current Implementation Status}
 
-At the current stage, the data layer and the first aerodynamic plant adapter are available. Geometry, mass, inertia, atmosphere and staged first-cut aerodynamics have been defined, including the clean CRM Mach-alpha grid, DATCOM-ready residual derivative metadata, source-backed DATCOM Mach-grid and control-grid derivative candidate run sets, derived gap-fill candidates, clean-cruise longitudinal trim-validation and modal-validation artifacts, CRM-HL/DATCOM-ready high-lift increments and body-axis aerodynamic loads. The next implementation step is to implement engine loads, actuator dynamics and the six-degree-of-freedom equations in MATLAB/Simulink.
+At the current stage, the data layer, aerodynamic plant adapter and propulsion
+load adapter are available. Geometry, mass, inertia, atmosphere and staged
+first-cut aerodynamics have been defined, including the clean CRM Mach-alpha
+grid, DATCOM-ready residual derivative metadata, source-backed DATCOM
+Mach-grid and control-grid derivative candidate run sets, derived gap-fill
+candidates, clean-cruise longitudinal trim-validation and modal-validation
+artifacts, CRM-HL/DATCOM-ready high-lift increments and body-axis aerodynamic
+loads. The propulsion layer now provides an idle-to-maximum throttle map,
+altitude/Mach thrust lapse, first-order spool derivatives and body-axis engine
+forces and moments. The next implementation step is to add control-surface
+actuator dynamics and assemble the nonlinear six-degree-of-freedom equations in
+MATLAB/Simulink.

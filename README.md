@@ -12,7 +12,7 @@ Nonlinear flight dynamics simulator for a Boeing 777-like aircraft and Nonlinear
 - `models/` - Simulink `.slx` models.
 - `plots/` - output graphs.
 - `docs/` - engineering documentation and thesis sources.
-- `tests/` - feature-oriented MATLAB checks for project structure, data and aerodynamics.
+- `tests/` - feature-oriented MATLAB checks for project structure, data, aerodynamics and engine loads.
 - `tools/` - Python and shell helpers for DATCOM extraction, validation and reports.
 
 ## Thesis PDF
@@ -43,6 +43,12 @@ NTF197/TWICS clean-cruise Mach-alpha grid, the retained `Mach = 0.85` CFD
 cross-check loader, the DATCOM-ready residual derivative table, the
 CRM-HL/DATCOM-ready high-lift table, and the aerodynamic force/moment adapter
 used by the plant.
+
+`tests/features/test_engine_loads.m` validates the initial GE90-115B-like
+propulsion seed: static thrust consistency with the geometry module,
+altitude/Mach thrust lapse, idle-to-maximum throttle mapping, first-order
+spool derivatives and body-axis force/moment signs for symmetric and
+asymmetric thrust.
 
 The first reproducible Digital DATCOM run package is documented in
 `docs/datcom_workflow.md`. It now includes a five-point Mach-grid runner that

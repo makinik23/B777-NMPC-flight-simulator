@@ -12,6 +12,7 @@
 
 - Boeing Airport Planning Manuals
 - Boeing 777-200LR/300ER/F ACAP
+- GE Aerospace GE90-115B public thrust information: https://www.geaerospace.com/news/press-releases/commercial-engines/ge90-115b-ges-best-ever-new-jet-engine-entry-airline-service
 - NASA Common Research Model clean transonic data: https://commonresearchmodel.larc.nasa.gov/
 - NASA CRM computational results index: https://commonresearchmodel.larc.nasa.gov/computational-results/
 - NASA CRM NTF Test 197 force and moment archive: https://commonresearchmodel.larc.nasa.gov/wp-content/uploads/sites/7/2017/06/NTF197Data.zip

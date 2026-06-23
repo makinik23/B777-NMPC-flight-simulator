@@ -12,6 +12,7 @@ Path & Description \\
 \texttt{data/b777\_geometry.m} & aircraft geometry and reference dimensions \\
 \texttt{data/b777\_mass\_inertia.m} & mass envelope and inertia estimates \\
 \texttt{data/b777\_atmosphere\_isa.m} & simple ISA atmosphere model \\
+\path{data/b777_engine_model.m} & B777-like propulsion seed and thrust-lapse model \\
 \path{data/aerodynamics/b777_aero_database.m} & staged aerodynamic database interface and source inventory \\
 \path{data/aerodynamics/b777_aero_simple.m} & first-cut aerodynamic coefficient model \\
 \path{data/aerodynamics/b777_aero_clean_crm_seed.m} & NASA CRM clean Mach-alpha grid provider \\
@@ -41,6 +42,7 @@ Path & Description \\
 \path{docs/trim_validation_report.md} & clean-cruise longitudinal trim-validation report \\
 \path{docs/longitudinal_modal_validation_report.md} & clean-cruise longitudinal modal-validation report \\
 \path{plant/b777_aero_forces_moments.m} & aerodynamic coefficient-to-load adapter for the plant \\
+\path{plant/b777_engine_forces_moments.m} & propulsion thrust-to-load adapter for the plant \\
 \path{tools/run_digital_datcom.sh} & Digital DATCOM download, build and run helper \\
 \path{tools/run_datcom_mach_grid.sh} & Digital DATCOM Mach-grid run helper \\
 \path{tools/run_datcom_control_grid.sh} & Digital DATCOM control-grid run helper \\
@@ -60,6 +62,7 @@ Path & Description \\
 \path{tests/features/test_modeling_conventions.m} & modelling-convention feature test \\
 \path{tests/features/test_aircraft_data.m} & geometry, mass, atmosphere and reference-case feature test \\
 \path{tests/features/test_aerodynamic_database.m} & staged aerodynamic-database feature test \\
+\path{tests/features/test_engine_loads.m} & propulsion load adapter feature test \\
 \path{tests/run_feature_tests.m} & feature-test runner \\
 \bottomrule
 \end{longtable}

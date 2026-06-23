@@ -319,4 +319,53 @@ with position limits
 \begin{equation}
     \delta_{min} \leq \delta \leq \delta_{max}.
 \end{equation}
-Engine thrust dynamics can be represented analogously by a first-order lag between commanded and actual thrust. These dynamics are essential for a realistic NMPC formulation because they define the achievable rate of change of aircraft forces and moments.
+
+The current propulsion model represents two under-wing turbofan engines. It is
+not a certified GE90 engine deck; it is an engineering seed based on public
+maximum static thrust information and the B777-like engine locations defined in
+the geometry module \cite{ge90}. The maximum available thrust per engine is modelled as
+\begin{equation}
+    T_{\max}(h,M) =
+    T_{SL}
+    \left(\frac{\rho(h)}{\rho_0}\right)^{a_T}
+    \max\left(f_{M,\min},\, 1-k_M M\right),
+\end{equation}
+where $T_{SL}$ is the sea-level static thrust reference, $\rho(h)$ is obtained
+from the ISA atmosphere model and $M$ is Mach number. The coefficients
+$a_T$, $k_M$ and $f_{M,\min}$ are first-cut engineering parameters and are
+kept explicit so that later performance tuning can replace them without
+changing the plant interface.
+
+Throttle commands are mapped from idle to maximum available thrust:
+\begin{align}
+    T_{idle}(h,M) &= f_{idle} T_{\max}(h,M), \\
+    T_{cmd,i} &=
+        T_{idle}(h,M)
+        + \tau_i\left(T_{\max}(h,M)-T_{idle}(h,M)\right),
+        \qquad 0 \leq \tau_i \leq 1 .
+\end{align}
+The actual thrust states are then propagated with a first-order spool model,
+\begin{equation}
+    \dot{T}_i = \frac{T_{cmd,i}-T_i}{\tau_T},
+\end{equation}
+where $i \in \{1,2\}$ denotes the left and right engine. These dynamics are
+essential for NMPC because they define the achievable rate of change of the
+longitudinal force and of asymmetric-thrust yawing moment.
+
+The plant-facing engine load adapter converts the actual thrust states into
+body-frame forces and moments. With the current thrust direction aligned with
+the positive body $x$ axis,
+\begin{align}
+    \bm{F}_{eng,b} &=
+        \sum_{i=1}^{2} T_i \bm{d}_{T,b}, \\
+    \bm{M}_{eng,b} &=
+        \sum_{i=1}^{2}
+        \left(\bm{r}_{i/cg,b} \times T_i \bm{d}_{T,b}\right).
+\end{align}
+The engine position vectors are taken from the B777-like geometry module. This
+means that symmetric thrust produces a longitudinal force and a pitching moment
+if the thrust line is vertically offset from the centre of gravity, while
+differential thrust produces a yawing moment because the engines are located
+outboard of the aircraft centreline. Fuel flow, engine gyroscopic moments,
+reverse thrust, nacelle drag and detailed spool scheduling are left for a later
+propulsion-model refinement.
