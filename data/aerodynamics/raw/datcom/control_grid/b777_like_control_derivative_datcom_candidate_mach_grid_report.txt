@@ -1,0 +1,15 @@
+source_id=DIGITAL_DATCOM_B777_LIKE_CONTROL_GRID_CANDIDATE_V0
+interpolation_policy=linear in Mach by control derivative inside committed grid; no extrapolation before validation
+mach_count=5
+mach_grid=0.30 0.50 0.60 0.70 0.80
+control_cases=aileron elevator
+elevator_row_count=15
+aileron_row_count=15
+CL_delta_e: count=5 mach_min=0.30 mach_max=0.80 value_min=0.26929016 value_max=0.30366763
+Cm_delta_e: count=5 mach_min=0.30 mach_max=0.80 value_min=-1.86898833 value_max=-1.57763929
+CD_delta_e: count=5 mach_min=0.30 mach_max=0.80 value_min=0.08207016 value_max=0.09552966
+CY_delta_a: count=5 mach_min=0.30 mach_max=0.80 value_min=0.00000000 value_max=0.00000000
+Cl_delta_a: count=5 mach_min=0.30 mach_max=0.80 value_min=0.10457626 value_max=0.12242962
+Cn_delta_a: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.00152808 value_max=-0.00112185
+missing_active_control_coefficients=CD_delta_a, CD_delta_r, CY_delta_r, Cl_delta_r, Cn_delta_r
+datcom_direct_gap_notes=rudder derivatives and aileron/rudder drag increments are not produced by the current DATCOM control decks

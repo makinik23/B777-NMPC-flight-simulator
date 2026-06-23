@@ -1,7 +1,20 @@
-%% B777 NMPC Flight Simulator - startup
-% Run this file from the project root to add all project folders to MATLAB path.
+%STARTUP Configure MATLAB paths for the B777-like NMPC project.
 
 projectRoot = fileparts(mfilename('fullpath'));
-addpath(genpath(projectRoot));
+projectFolders = { ...
+    'data', ...
+    'tests', ...
+    'plant', ...
+    'nmpc', ...
+    'guidance', ...
+    'validation' ...
+};
 
-fprintf('B777 NMPC project loaded from: %s', projectRoot);
+for k = 1:numel(projectFolders)
+    folderPath = fullfile(projectRoot, projectFolders{k});
+    if isfolder(folderPath)
+        addpath(genpath(folderPath));
+    end
+end
+
+clear folderPath k projectFolders projectRoot;

@@ -1,0 +1,48 @@
+\chapter{NMPC Autopilot Design}
+
+\section{Autopilot Architecture}
+
+The autopilot is designed as a layered system. The guidance layer generates references such as altitude, airspeed, heading, flight-path angle or path error. The NMPC layer computes control commands that minimise tracking errors while respecting constraints. The actuator and propulsion layer maps commands to actual elevator, aileron, rudder and thrust states.
+
+\section{Optimisation Problem}
+
+At each control update the NMPC controller solves a finite-horizon optimisation problem. A representative cost function is
+\begin{equation}
+    J = \sum_{k=0}^{N_p} \lVert \bm{y}_k - \bm{y}_{ref,k} \rVert_{Q}^{2}
+    + \sum_{k=0}^{N_c-1} \lVert \bm{u}_k - \bm{u}_{ref,k} \rVert_{R}^{2}
+    + \sum_{k=0}^{N_c-1} \lVert \Delta \bm{u}_k \rVert_{S}^{2}.
+\end{equation}
+The terms in the cost function penalise tracking errors, absolute control usage and control increments. Additional soft-constraint penalties may be added for flight-envelope variables when strict feasibility is difficult to guarantee.
+
+\section{Constraints}
+
+The most important constraints are:
+\begin{itemize}
+    \item elevator, aileron and rudder deflection limits,
+    \item control-surface rate limits,
+    \item thrust and throttle limits,
+    \item bank-angle and pitch-angle limits,
+    \item angle-of-attack and sideslip limits,
+    \item airspeed bounds,
+    \item vertical-speed or flight-path-angle bounds,
+    \item load-factor bounds.
+\end{itemize}
+
+The explicit treatment of these limits is the main reason for selecting NMPC rather than a purely classical autopilot design for this project.
+
+\section{Reduced Prediction Models}
+
+The first implementation will use separate reduced prediction models for longitudinal and lateral-directional control. The longitudinal model will include airspeed, angle of attack, pitch rate, pitch angle, altitude and equivalent thrust. The lateral-directional model will include sideslip, roll rate, yaw rate, bank angle, heading angle and lateral path error. This separation reduces computational complexity and allows each channel to be validated independently before any integrated NMPC formulation is attempted.
+
+\section{Planned Autopilot Modes}
+
+The planned modes include:
+\begin{itemize}
+    \item altitude hold,
+    \item speed hold,
+    \item vertical-speed or flight-path-angle control,
+    \item heading select,
+    \item simplified lateral navigation tracking,
+    \item simplified vertical navigation tracking,
+    \item localiser and glideslope capture in a simplified approach scenario.
+\end{itemize}

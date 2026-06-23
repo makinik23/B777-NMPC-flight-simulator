@@ -1,2 +1,38 @@
-docs/
-scripts/
+# OS metadata
+.DS_Store
+
+# Local build/download cache
+.cache/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# MATLAB/Simulink generated files
+*.asv
+*.m~
+*.slxc
+slprj/
+
+# DATCOM generated run outputs
+data/aerodynamics/raw/datcom/runs/
+
+# LaTeX generated files
+docs/thesis/*.aux
+docs/thesis/*.bbl
+docs/thesis/*.bcf
+docs/thesis/*.fdb_latexmk
+docs/thesis/*.fls
+docs/thesis/*.blg
+docs/thesis/*.lof
+docs/thesis/*.log
+docs/thesis/*.lot
+docs/thesis/*.out
+docs/thesis/*.pdf
+docs/thesis/*.run.xml
+docs/thesis/*.toc

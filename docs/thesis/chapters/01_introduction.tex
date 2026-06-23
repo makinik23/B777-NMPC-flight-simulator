@@ -1,0 +1,27 @@
+\chapter{Introduction}
+
+Automatic flight control systems are a fundamental part of modern transport aircraft. Their role extends beyond basic stabilisation: they reduce pilot workload, improve flight-path tracking, support energy management and help maintain operation within structural, aerodynamic and actuator constraints. The control problem is particularly demanding for large transport aircraft because of their high mass, large inertia, coupled longitudinal and lateral-directional dynamics, altitude-dependent performance and strict actuator limitations.
+
+Classical autopilot architectures are often organised as hierarchical control systems. Inner loops stabilise angular rates or attitude variables, while outer loops generate commands for altitude, airspeed, heading or path tracking. This structure is effective and widely used, but it also separates tracking objectives from constraints. Nonlinear Model Predictive Control offers a different design philosophy: the nonlinear prediction model, performance objective and operational constraints are treated within one finite-horizon optimisation problem \cite{rawlings2017mpc,grune2017nmpc}.
+
+The subject of this thesis is the development of a Boeing 777-like flight dynamics simulator and an NMPC-based autopilot concept. The phrase Boeing 777-like denotes an educational model of a large twin-engine wide-body aircraft whose dimensions and mass envelope are qualitatively close to the Boeing 777-300ER class. It does not denote an exact aircraft model. This distinction is important because accurate aerodynamic, engine and flight-control data for commercial aircraft are not publicly available in the detail required for a certified simulator.
+
+\section{Engineering Motivation}
+
+The project combines several areas of aerospace engineering: rigid-body flight mechanics, coordinate-frame conventions, aerodynamic modelling, propulsion modelling, numerical simulation, trimming and constrained control design. The value of the project lies in building the complete modelling chain. Instead of studying the controller in isolation, the thesis develops a simulation plant, defines validation criteria and then uses the plant as the basis for autopilot synthesis.
+
+The project also has a software-engineering motivation. A flight dynamics model becomes difficult to validate when geometry, mass data, atmosphere assumptions, aerodynamic coefficients and actuator limits are scattered through ad hoc files. For that reason, the implementation is organised into reusable MATLAB modules, with explicit units and feature-oriented checks. This makes the model easier to review and reduces the risk of hidden convention errors.
+
+\section{Problem Statement}
+
+The main engineering problem considered in this thesis can be stated as follows:
+
+\begin{quote}
+How can a coherent nonlinear flight dynamics model of a large transport aircraft be constructed from public and estimated data, and how can it be used as the basis for an NMPC autopilot that respects actuator, thrust and flight-envelope constraints?
+\end{quote}
+
+This problem requires both modelling and control-design decisions. The simulation plant must be detailed enough to represent the dominant aircraft dynamics, but simple enough to be implemented, trimmed and validated within the scope of an engineering thesis. The NMPC prediction model must be computationally tractable while remaining dynamically consistent with the plant in the operating region of interest.
+
+\section{Thesis Structure}
+
+Chapter 2 defines the aim, scope and success criteria of the project. Chapter 3 introduces the theoretical background required for flight dynamics modelling and predictive control. Chapter 4 presents the mathematical model of the aircraft. Chapter 5 describes the software implementation. Chapter 6 discusses trimming and validation. Chapter 7 presents the planned NMPC autopilot architecture. Chapter 8 defines the simulation study programme. Chapter 9 summarises the current state of the project and outlines further work.

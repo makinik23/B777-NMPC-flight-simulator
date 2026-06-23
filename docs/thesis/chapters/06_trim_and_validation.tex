@@ -1,0 +1,151 @@
+\chapter{Trimming and Validation}
+
+\section{Role of Trimming}
+
+Trimming is a central step in flight dynamics modelling. A trim condition is a steady or quasi-steady operating point in which selected accelerations and tracking errors are zero or match prescribed values. For level cruise, for example, the aircraft should maintain altitude and airspeed with approximately zero angular accelerations and zero flight-path angle.
+
+Without trim points it is difficult to evaluate stability, initialise simulations, linearise the model or design an autopilot. In this project trimming is therefore treated as part of the model-development workflow rather than as a post-processing task. A candidate aerodynamic database is not considered ready for further use merely because its coefficients have plausible signs; it must also allow the aircraft to reach physically reasonable equilibrium conditions.
+
+\section{Trim Formulation}
+
+A trim problem can be expressed as a constrained nonlinear optimisation problem:
+\begin{equation}
+    \min_{\bm{x},\bm{u}}
+    \left\|
+        \bm{f}_{trim}(\bm{x},\bm{u},\bm{p})
+    \right\|^2,
+\end{equation}
+where $\bm{x}$ is the state vector, $\bm{u}$ is the input vector and $\bm{p}$ contains prescribed flight-condition parameters such as altitude, speed, mass and configuration. The residual vector may include translational accelerations, angular accelerations, flight-path-angle error, sideslip error and actuator equilibrium errors.
+
+\section{Implemented Longitudinal Trim Check}
+
+At the current stage, a restricted clean-cruise longitudinal trim check has been implemented for the DATCOM candidate aerodynamic path. This check does not yet replace the future full six-degree-of-freedom trim solver. Its purpose is narrower: it verifies that the CRM clean baseline combined with the DATCOM elevator candidates can produce realistic cruise equilibrium points before the derivative candidates are considered for promotion.
+
+For a prescribed altitude $h$, Mach number $M$, mass $m$ and flight-path angle $\gamma$, the speed and dynamic pressure are computed from the ISA atmosphere:
+\begin{align}
+    V &= Ma(h), \\
+    q_{\infty} &= \frac{1}{2}\rho(h)V^2.
+\end{align}
+For the current level-cruise cases, the attitude relation is approximated by
+\begin{equation}
+    \theta = \alpha + \gamma.
+\end{equation}
+The elevator deflection is obtained from the zero pitching-moment condition:
+\begin{equation}
+    C_m(M,\alpha,\delta_e)
+    =
+    C_{m,clean}(M,\alpha)
+    + C_{m_{\delta_e}}(M)\delta_e
+    = 0,
+\end{equation}
+which gives
+\begin{equation}
+    \delta_e =
+    -\frac{C_{m,clean}(M,\alpha)}{C_{m_{\delta_e}}(M)}.
+\end{equation}
+The remaining scalar unknown is the angle of attack. It is solved from the vertical body-axis force balance:
+\begin{equation}
+    r_z(\alpha) =
+    q_{\infty}S\left(
+        -C_D\sin\alpha - C_L\cos\alpha
+    \right)
+    + mg\cos\theta = 0.
+\end{equation}
+After $\alpha$ and $\delta_e$ have been found, the required thrust is computed from the axial balance:
+\begin{equation}
+    T =
+    -q_{\infty}S\left(
+        -C_D\cos\alpha + C_L\sin\alpha
+    \right)
+    + mg\sin\theta.
+\end{equation}
+In this validation step, thrust is treated as a static-equivalent scalar along the body $x$ axis. Engine pitching moments, actuator states and lateral-directional equilibrium are intentionally outside the scope of this first trim gate.
+
+The implemented script \path{tools/run_trim_validation.py} evaluates three clean-cruise cases at \SI{10668}{\metre} and \SI{250000}{\kilogram}. The case table is written to \path{data/aerodynamics/validation/trim_validation_cases.csv}, while the summary report is written to \path{docs/trim_validation_report.md}. The current results are listed in \cref{tab:trim_validation_results}.
+
+\begin{table}[H]
+    \centering
+    \caption{Current clean-cruise longitudinal trim-validation results for the DATCOM candidate path.}
+    \label{tab:trim_validation_results}
+    \begin{tabular}{lrrrrr}
+        \toprule
+        Case & Mach & $\alpha$ [deg] & $\delta_e$ [deg] & $C_L$ & $T$ [kN] \\
+        \midrule
+        clean\_cruise\_m070 & 0.70010 & 5.5815 & -0.5315 & 0.6822 & 143.41 \\
+        clean\_cruise\_m075 & 0.75015 & 4.4035 & 0.1550 & 0.5952 & 130.21 \\
+        clean\_cruise\_m080 & 0.80000 & 3.4957 & 0.9323 & 0.5238 & 126.97 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The acceptance criteria require the angle of attack to remain inside the clean CRM range and below \SI{8}{\degree}, the elevator trim to remain within $\pm\SI{5}{\degree}$, the static-equivalent thrust to remain positive and below 30\% of the public GE90-115B static thrust estimate, the residual forces to be numerically negligible, the pitching-moment coefficient residual to be near zero and the margin to the current clean $C_{L,\max}$ estimate to remain at least 0.40. All three cases pass these checks, so the validation report records the marker
+\begin{equation}
+    \texttt{DATCOM\_PROMOTION\_TRIM\_VALIDATED=true}.
+\end{equation}
+This marker does not by itself activate the DATCOM candidate derivatives. It only removes the trim-validation blocker from the promotion gate; the modal gate and DATCOM warning review are evaluated separately.
+
+\section{Implemented Longitudinal Modal Check}
+
+The next validation layer uses the same three clean-cruise trim cases to check the dominant longitudinal modes of the DATCOM candidate path. The implemented script \path{tools/run_longitudinal_modal_validation.py} forms a restricted longitudinal state vector
+\begin{equation}
+    \bm{x}_{lon} =
+    \begin{bmatrix}
+        u & w & q & \theta
+    \end{bmatrix}^{T}.
+\end{equation}
+The elevator and thrust values are held at their trim values. The aerodynamic model uses the CRM clean $C_L$, $C_D$ and $C_m$ table, DATCOM candidate $C_{L_q}$ and $C_{m_q}$ derivatives, and the DATCOM elevator effectiveness candidates. The resulting nonlinear residual is linearised numerically around each trim point:
+\begin{equation}
+    \Delta\dot{\bm{x}}_{lon} =
+    \bm{A}_{lon}\Delta\bm{x}_{lon}.
+\end{equation}
+The finite-difference scheme uses central differences inside the data range and one-sided differences when a trim point lies on a committed Mach-grid boundary. This avoids extrapolating the CRM or DATCOM candidate data.
+
+The current modal-validation results are listed in \cref{tab:longitudinal_modal_validation_results}. The slower pair is classified as phugoid and the faster pair as short-period.
+
+\begin{table}[H]
+    \centering
+    \caption{Current restricted longitudinal modal-validation results for the DATCOM candidate path.}
+    \label{tab:longitudinal_modal_validation_results}
+    \begin{tabular}{llrrrr}
+        \toprule
+        Case & Mode & $\Re(\lambda)$ [1/s] & $\omega_n$ [rad/s] & $\zeta$ & Period [s] \\
+        \midrule
+        clean\_cruise\_m070 & phugoid & -0.001215 & 0.063889 & 0.01902 & 98.36 \\
+        clean\_cruise\_m070 & short-period & -0.363103 & 0.652714 & 0.55630 & 11.58 \\
+        clean\_cruise\_m075 & phugoid & -0.001819 & 0.066811 & 0.02722 & 94.08 \\
+        clean\_cruise\_m075 & short-period & -0.425626 & 0.869361 & 0.48959 & 8.29 \\
+        clean\_cruise\_m080 & phugoid & -0.001723 & 0.064624 & 0.02666 & 97.26 \\
+        clean\_cruise\_m080 & short-period & -0.479470 & 1.016779 & 0.47156 & 7.01 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+All three cases produce two stable oscillatory mode pairs. The phugoid natural frequency and period remain in a low-frequency, lightly damped range, while the short-period mode remains faster and more strongly damped. Therefore the validation report records the marker
+\begin{equation}
+    \texttt{DATCOM\_PROMOTION\_MODAL\_VALIDATED=true}.
+\end{equation}
+This result is still limited to the restricted longitudinal model. It does not validate lateral-directional modes, actuator dynamics, engine pitching moments or a fully coupled six-degree-of-freedom linearisation.
+
+\section{Reference Cases}
+
+The project defines representative reference cases in \texttt{reference\_cases.m}. The first case is a nominal cruise condition at approximately 35000 ft, or \SI{10668}{\metre}. The second case is an approach condition at approximately 3000 ft, or \SI{914.4}{\metre}, and a negative flight-path angle. Each case stores mass in kilograms and uses the fixed project gravity value. This avoids ambiguity associated with symbolic mass-case names and keeps the trim problem tied to explicit physical parameters.
+
+\section{Validation Strategy}
+
+Because certified aerodynamic and engine data are not available, validation is initially qualitative and consistency-based. The following checks define the staged validation path:
+\begin{itemize}
+    \item sign checks for aerodynamic derivatives and control effects,
+    \item static stability checks in longitudinal and lateral-directional channels,
+    \item trim residual checks for each reference case,
+    \item open-loop response checks for elevator, aileron, rudder and throttle perturbations,
+    \item comparison of modal behaviour with expected transport-aircraft tendencies,
+    \item sensitivity checks for mass and configuration changes.
+\end{itemize}
+
+\section{Linearisation Around Trim}
+
+After trim points are found, the nonlinear plant can be linearised around selected operating points:
+\begin{equation}
+    \Delta\dot{\bm{x}} = \bm{A}\Delta\bm{x} + \bm{B}\Delta\bm{u}.
+\end{equation}
+The resulting linear models will support analysis of phugoid, short-period, Dutch-roll, roll and spiral modes. The current restricted longitudinal modal check covers only the phugoid and short-period modes. A later full-plant linearisation should add lateral-directional and coupled six-degree-of-freedom modal checks before the aircraft model is used as the final NMPC validation plant.

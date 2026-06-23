@@ -1,0 +1,23 @@
+source_id=DIGITAL_DATCOM_B777_LIKE_MACH_GRID_CANDIDATE_V0
+promotion_allowed=false
+blocker_count=0
+review_count=1
+
+Gate Results
+source_id: status=pass; severity=blocker; candidate source ids: DIGITAL_DATCOM_B777_LIKE_MACH_GRID_CANDIDATE_V0
+case_traceability: status=pass; severity=blocker; case_source_id count=5; expected=5
+run_quality: status=pass; severity=blocker; all DATCOM Mach-grid runs must have datcom_exit_status=0 and error_count=0
+warning_review: status=review; severity=review; warning_count values: 1; known DATCOM body-alone dynamic-derivative warning must remain documented
+mach_grid: status=pass; severity=blocker; candidate Mach grid=[0.3, 0.5, 0.6, 0.7, 0.8]; expected=[0.3, 0.5, 0.6, 0.7, 0.8]
+row_count: status=pass; severity=blocker; candidate row count=50; expected=50
+candidate_status: status=pass; severity=blocker; candidate statuses: candidate-pending-review
+interpolation_policy: status=pass; severity=blocker; interpolation policies: linear in Mach inside committed grid; no extrapolation before validation
+expected_signs: status=pass; severity=blocker; all expected static and damping signs pass
+candidate_confidence_floor: status=pass; severity=blocker; minimum candidate confidence=0.30; required >=0.30 before promotion
+active_table_coverage: status=pass; severity=blocker; candidate active-table coefficients: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r, dynamic.CL_q, dynamic.CY_p, dynamic.CY_r, dynamic.Cl_p, dynamic.Cl_r, dynamic.Cm_q, dynamic.Cn_p, dynamic.Cn_r, static.CD_beta, static.CY_beta, static.Cl_beta, static.Cn_beta; missing: none
+control_derivatives: status=pass; severity=blocker; candidate control coefficients: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r; required: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r; missing: none
+trim_validation: status=pass; severity=blocker; requires DATCOM_PROMOTION_TRIM_VALIDATED=true in validation report
+modal_validation: status=pass; severity=blocker; requires DATCOM_PROMOTION_MODAL_VALIDATED=true in validation report
+
+Review Gates
+- warning_review: warning_count values: 1; known DATCOM body-alone dynamic-derivative warning must remain documented

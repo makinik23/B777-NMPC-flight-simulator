@@ -1,0 +1,10 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This engineering thesis concerns the development of a nonlinear flight dynamics simulation environment for a Boeing 777-like transport aircraft and the design of an autopilot concept based on Nonlinear Model Predictive Control. The aircraft is treated as a large twin-engine wide-body transport configuration inspired by publicly available Boeing 777-300ER data, but the model is not intended to reproduce a certified manufacturer simulation model. The work therefore focuses on engineering consistency, transparent assumptions, and a modular software structure suitable for control design studies.
+
+The thesis describes the adopted coordinate systems, state and input definitions, mass and inertia estimates, standard atmosphere model, first-cut aerodynamic model, propulsion assumptions, trimming requirements, and validation strategy. The implementation is organised as a MATLAB/Simulink-oriented project with reusable data modules, feature tests and reproducible data-processing tools. Particular attention is given to the separation between fixed aircraft properties, such as mass and inertia, and force quantities that depend on environmental assumptions such as gravitational acceleration.
+
+The expected result of the project is a coherent simulation plant that can be trimmed in representative flight conditions and used as a basis for longitudinal and lateral-directional NMPC autopilot modes. The proposed controller architecture is designed to handle input limits, actuator rate limits, state constraints, and trajectory tracking objectives within a finite-horizon optimisation problem.
+
+\textbf{Keywords:} flight dynamics, six-degree-of-freedom model, Boeing 777-like aircraft, nonlinear model predictive control, autopilot, MATLAB, Simulink.

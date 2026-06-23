@@ -1,0 +1,11 @@
+source_id,group,coefficient,basis,value,units,status,confidence,notes
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,static,CY_beta,beta_rad,-0.37906888,1/rad,candidate-pending-review,0.40,Extracted from DATCOM CYB at Mach 0.60 alpha -2 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,static,Cl_beta,beta_rad,-0.09556936,1/rad,candidate-pending-review,0.40,Extracted from DATCOM CLB at Mach 0.60 alpha 0 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,static,Cn_beta,beta_rad,0.06583285,1/rad,candidate-pending-review,0.40,Extracted from DATCOM CNB at Mach 0.60 alpha -2 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,CL_q,q_hat,15.64747739,1,candidate-pending-review,0.35,Extracted from DATCOM CLQ at Mach 0.60 alpha -2 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,Cm_q,q_hat,-54.54558210,1,candidate-pending-review,0.35,Extracted from DATCOM CMQ at Mach 0.60 alpha -2 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,CY_p,p_hat,-0.11636773,1,candidate-pending-review,0.35,Extracted from DATCOM CYP at Mach 0.60 alpha 0 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,Cl_p,p_hat,-0.37540195,1,candidate-pending-review,0.35,Extracted from DATCOM CLP at Mach 0.60 alpha 0 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,Cn_p,p_hat,-0.02347981,1,candidate-pending-review,0.30,Extracted from DATCOM CNP at Mach 0.60 alpha 2 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,Cn_r,r_hat,-0.19056576,1,candidate-pending-review,0.35,Extracted from DATCOM CNR at Mach 0.60 alpha 0 deg converted from per degree
+DIGITAL_DATCOM_B777_LIKE_M060_CANDIDATE_V0,dynamic,Cl_r,r_hat,0.03001726,1,candidate-pending-review,0.35,Extracted from DATCOM CLR at Mach 0.60 alpha 0 deg converted from per degree

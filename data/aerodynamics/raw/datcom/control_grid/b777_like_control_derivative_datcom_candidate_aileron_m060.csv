@@ -1,0 +1,4 @@
+source_id,group,coefficient,basis,value,units,status,confidence,notes
+DIGITAL_DATCOM_B777_LIKE_CONTROL_AILERON_M060_CANDIDATE_V0,control,CY_delta_a,delta_a_rad,0.00000000,1/rad,candidate-pending-review,0.20,Aileron side-force derivative not printed by DATCOM ASYFLP; set to zero by symmetry pending review.
+DIGITAL_DATCOM_B777_LIKE_CONTROL_AILERON_M060_CANDIDATE_V0,control,Cl_delta_a,delta_a_rad,0.11969661,1/rad,candidate-pending-review,0.35,"Aileron derivative from DATCOM ASYFLP (CL)ROLL; central difference using +/-10 deg; Cl(+)= 0.020891, Cl(-)= -0.020891"
+DIGITAL_DATCOM_B777_LIKE_CONTROL_AILERON_M060_CANDIDATE_V0,control,Cn_delta_a,delta_a_rad,-0.00142437,1/rad,candidate-pending-review,0.30,"Aileron yawing derivative from DATCOM ASYFLP CN at alpha 2 deg; central difference using +/-10 deg; CN(+)= -0.0002486, CN(-)= 0.0002486"

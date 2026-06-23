@@ -1,0 +1,65 @@
+\chapter{Project Directory Structure}
+
+This appendix summarises the working project structure used during implementation.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.42\textwidth}>{\raggedright\arraybackslash}p{0.50\textwidth}}
+\toprule
+Path & Description \\
+\midrule
+\path{Makefile} & repository-level build helper \\
+\path{B777_NMPC_Flight_Simulator.pdf} & published thesis PDF in the repository root \\
+\texttt{data/b777\_constants.m} & project-wide constants \\
+\texttt{data/b777\_geometry.m} & aircraft geometry and reference dimensions \\
+\texttt{data/b777\_mass\_inertia.m} & mass envelope and inertia estimates \\
+\texttt{data/b777\_atmosphere\_isa.m} & simple ISA atmosphere model \\
+\path{data/aerodynamics/b777_aero_database.m} & staged aerodynamic database interface and source inventory \\
+\path{data/aerodynamics/b777_aero_simple.m} & first-cut aerodynamic coefficient model \\
+\path{data/aerodynamics/b777_aero_clean_crm_seed.m} & NASA CRM clean Mach-alpha grid provider \\
+\path{data/aerodynamics/b777_aero_read_crm_clean_grid_csv.m} & curated NASA CRM clean grid CSV reader \\
+\path{data/aerodynamics/b777_aero_read_crm_force_moment_csv.m} & NASA CRM force and moment CSV reader \\
+\path{data/aerodynamics/b777_aero_read_derivative_csv.m} & source-oriented derivative CSV reader \\
+\path{data/aerodynamics/b777_aero_read_mach_derivative_csv.m} & source-oriented Mach-dependent derivative candidate CSV reader \\
+\path{data/aerodynamics/b777_aero_read_high_lift_csv.m} & source-oriented high-lift CSV reader \\
+\path{data/aerodynamics/b777_aero_derivative_seed.m} & DATCOM-ready residual derivative data \\
+\path{data/aerodynamics/b777_aero_high_lift_seed.m} & CRM-HL/DATCOM-ready high-lift increments \\
+\path{data/aerodynamics/raw/nasa_crm/NTF197_TWICS_clean_grid.csv} & curated NASA CRM NTF197 clean Mach-alpha grid \\
+\path{data/aerodynamics/raw/nasa_crm/NASA_wbt0_M85_CFD_orig.csv} & mirrored NASA CRM clean CFD cross-check table \\
+\path{data/aerodynamics/raw/datcom/b777_like_derivative_seed.csv} & DATCOM-ready derivative seed table \\
+\path{data/aerodynamics/raw/datcom/b777_like_digital_datcom_static_damping.inp} & B777-like Digital DATCOM input deck \\
+\path{data/aerodynamics/raw/datcom/b777_like_derivative_datcom_candidate_m060.csv} & extracted DATCOM derivative candidate table \\
+\path{data/aerodynamics/raw/datcom/mach_grid} & committed Digital DATCOM Mach-grid input decks and candidate CSV files \\
+\path{data/aerodynamics/raw/datcom/mach_grid/b777_like_datcom_mach_grid_run_index.csv} & Digital DATCOM Mach-grid run index \\
+\path{data/aerodynamics/raw/datcom/mach_grid/b777_like_derivative_datcom_candidate_mach_grid.csv} & consolidated Digital DATCOM Mach-grid derivative candidate table \\
+\path{data/aerodynamics/raw/datcom/mach_grid/b777_like_derivative_datcom_promotion_gates.txt} & Digital DATCOM derivative promotion-gate report \\
+\path{data/aerodynamics/raw/datcom/control_grid} & generated Digital DATCOM elevator and aileron control-grid decks and candidate CSV files \\
+\path{data/aerodynamics/raw/datcom/control_grid/b777_like_control_derivative_datcom_candidate_mach_grid.csv} & consolidated Digital DATCOM control-derivative candidate table \\
+\path{data/aerodynamics/raw/datcom/derived_gap_fill} & derived Digital DATCOM gap-fill candidate table and report \\
+\path{data/aerodynamics/raw/datcom/derived_gap_fill/b777_like_derivative_gap_fill_candidate_mach_grid.csv} & consolidated derived candidate table for active-interface gaps \\
+\path{data/aerodynamics/validation/trim_validation_cases.csv} & clean-cruise longitudinal trim-validation case table \\
+\path{data/aerodynamics/validation/longitudinal_modal_validation_cases.csv} & clean-cruise longitudinal modal-validation case table \\
+\path{data/aerodynamics/raw/high_lift/b777_like_high_lift_seed.csv} & CRM-HL/DATCOM-ready high-lift seed table \\
+\path{docs/trim_validation_report.md} & clean-cruise longitudinal trim-validation report \\
+\path{docs/longitudinal_modal_validation_report.md} & clean-cruise longitudinal modal-validation report \\
+\path{plant/b777_aero_forces_moments.m} & aerodynamic coefficient-to-load adapter for the plant \\
+\path{tools/run_digital_datcom.sh} & Digital DATCOM download, build and run helper \\
+\path{tools/run_datcom_mach_grid.sh} & Digital DATCOM Mach-grid run helper \\
+\path{tools/run_datcom_control_grid.sh} & Digital DATCOM control-grid run helper \\
+\path{tools/generate_datcom_control_grid.py} & Digital DATCOM control-grid input deck generator \\
+\path{tools/extract_datcom_derivatives.py} & Digital DATCOM output parser and candidate CSV extractor \\
+\path{tools/extract_datcom_control_derivatives.py} & Digital DATCOM control-output parser and candidate CSV extractor \\
+\path{tools/build_datcom_mach_grid_table.py} & Digital DATCOM Mach-grid candidate consolidation helper \\
+\path{tools/build_datcom_control_grid_table.py} & Digital DATCOM control-grid candidate consolidation helper \\
+\path{tools/build_datcom_gap_fill_candidates.py} & derived DATCOM gap-fill candidate builder \\
+\path{tools/run_trim_validation.py} & clean-cruise longitudinal trim-validation helper \\
+\path{tools/run_longitudinal_modal_validation.py} & clean-cruise longitudinal modal-validation helper \\
+\path{tools/evaluate_datcom_promotion_gates.py} & Digital DATCOM candidate promotion-gate evaluator \\
+\texttt{data/b777\_configs.m} & clean, approach and landing configuration definitions \\
+\texttt{data/reference\_cases.m} & reference flight cases for trim and validation \\
+\texttt{data/conventions.m} & units, frames, states and input conventions \\
+\path{tests/features/test_project_structure.m} & project-structure feature test \\
+\path{tests/features/test_modeling_conventions.m} & modelling-convention feature test \\
+\path{tests/features/test_aircraft_data.m} & geometry, mass, atmosphere and reference-case feature test \\
+\path{tests/features/test_aerodynamic_database.m} & staged aerodynamic-database feature test \\
+\path{tests/run_feature_tests.m} & feature-test runner \\
+\bottomrule
+\end{longtable}

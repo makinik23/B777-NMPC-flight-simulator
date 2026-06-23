@@ -1,0 +1,24 @@
+source_id,group,coefficient,basis,value,units,status,confidence,notes
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,static,CY_beta,beta_rad,-0.85,1/rad,engineering-seed-pending-DATCOM,0.25,Sideslip side-force seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,static,Cl_beta,beta_rad,-0.12,1/rad,engineering-seed-pending-DATCOM,0.25,Sideslip rolling-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,static,Cn_beta,beta_rad,0.18,1/rad,engineering-seed-pending-DATCOM,0.25,Sideslip yawing-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,static,CD_beta,beta_rad_squared,0.20,1/rad^2,engineering-seed-pending-DATCOM,0.25,Sideslip drag increment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,CL_q,q_hat,7.50,1,engineering-seed-pending-DATCOM,0.25,Pitch-rate lift seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,Cm_q,q_hat,-18.0,1,engineering-seed-pending-DATCOM,0.25,Pitch-rate damping seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,CY_p,p_hat,-0.10,1,engineering-seed-pending-DATCOM,0.25,Roll-rate side-force seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,CY_r,r_hat,0.25,1,engineering-seed-pending-DATCOM,0.25,Yaw-rate side-force seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,Cl_p,p_hat,-0.50,1,engineering-seed-pending-DATCOM,0.25,Roll damping seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,Cl_r,r_hat,0.20,1,engineering-seed-pending-DATCOM,0.25,Yaw-rate rolling-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,Cn_p,p_hat,-0.06,1,engineering-seed-pending-DATCOM,0.25,Roll-rate yawing-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,dynamic,Cn_r,r_hat,-0.25,1,engineering-seed-pending-DATCOM,0.25,Yaw damping seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CL_delta_e,delta_e_rad,0.35,1/rad,engineering-seed-pending-DATCOM,0.25,Elevator lift-effectiveness seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,Cm_delta_e,delta_e_rad,-1.10,1/rad,engineering-seed-pending-DATCOM,0.25,Elevator pitch-effectiveness seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CD_delta_e,delta_e_rad_squared,0.03,1/rad^2,engineering-seed-pending-DATCOM,0.25,Elevator drag increment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CY_delta_a,delta_a_rad,0.00,1/rad,engineering-seed-pending-DATCOM,0.25,Aileron side-force seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CY_delta_r,delta_r_rad,0.17,1/rad,engineering-seed-pending-DATCOM,0.25,Rudder side-force seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,Cl_delta_a,delta_a_rad,0.08,1/rad,engineering-seed-pending-DATCOM,0.25,Aileron roll-effectiveness seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,Cl_delta_r,delta_r_rad,0.015,1/rad,engineering-seed-pending-DATCOM,0.25,Rudder rolling-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,Cn_delta_a,delta_a_rad,0.01,1/rad,engineering-seed-pending-DATCOM,0.25,Aileron yawing-moment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,Cn_delta_r,delta_r_rad,0.08,1/rad,engineering-seed-pending-DATCOM,0.25,Rudder yaw-effectiveness seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CD_delta_a,delta_a_rad_squared,0.02,1/rad^2,engineering-seed-pending-DATCOM,0.25,Aileron drag increment seed
+DATCOM_DERIVATIVE_SEED_B777_LIKE_V0,control,CD_delta_r,delta_r_rad_squared,0.02,1/rad^2,engineering-seed-pending-DATCOM,0.25,Rudder drag increment seed

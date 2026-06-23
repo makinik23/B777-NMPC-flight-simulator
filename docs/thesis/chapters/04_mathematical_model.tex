@@ -1,0 +1,322 @@
+\chapter{Mathematical Model of the Aircraft}
+
+\section{State Vector}
+
+The full nonlinear plant state is defined consistently with the project convention file as
+\begin{equation}
+    \bm{x} =
+    \begin{bmatrix}
+        N & E & D & u & v & w & \phi & \theta & \psi &
+        p & q & r & T_1 & T_2 & \delta_e & \delta_a & \delta_r
+    \end{bmatrix}^{T}.
+\end{equation}
+The variables $N$, $E$ and $D$ define position in the navigation frame. The variables $u$, $v$ and $w$ are body-axis velocity components. The Euler angles are roll $\phi$, pitch $\theta$ and yaw $\psi$. The angular rates $p$, $q$ and $r$ are expressed in the body frame. The remaining states represent left and right engine thrust and actual control-surface deflections.
+
+\section{Command Input Vector}
+
+The command input vector is
+\begin{equation}
+    \bm{u}_{cmd} =
+    \begin{bmatrix}
+        \delta_{e,cmd} &
+        \delta_{a,cmd} &
+        \delta_{r,cmd} &
+        \tau_{1,cmd} &
+        \tau_{2,cmd}
+    \end{bmatrix}^{T},
+\end{equation}
+where $\delta_{e,cmd}$, $\delta_{a,cmd}$ and $\delta_{r,cmd}$ are commanded elevator, effective aileron and rudder deflections. The throttle commands $\tau_{1,cmd}$ and $\tau_{2,cmd}$ are nondimensional values in the range from zero to one.
+
+\section{Kinematics}
+
+The position kinematics are written as
+\begin{equation}
+    \dot{\bm{r}}_n = \bm{C}_{nb}\bm{v}_b,
+\end{equation}
+where $\bm{C}_{nb}$ transforms a vector from the body frame to the navigation frame. The Euler angle rates are related to body rates by
+\begin{equation}
+    \begin{bmatrix}
+        \dot{\phi} \\ \dot{\theta} \\ \dot{\psi}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        1 & \sin\phi \tan\theta & \cos\phi \tan\theta \\
+        0 & \cos\phi & -\sin\phi \\
+        0 & \sin\phi/\cos\theta & \cos\phi/\cos\theta
+    \end{bmatrix}
+    \begin{bmatrix}
+        p \\ q \\ r
+    \end{bmatrix}.
+\end{equation}
+This representation is simple and appropriate for normal aircraft attitudes, but it becomes singular as $\theta$ approaches $\pm 90^\circ$.
+
+\section{Translational Dynamics}
+
+The translational equations in the rotating body frame are
+\begin{equation}
+    m\dot{\bm{v}}_b = \bm{F}_b - m\bm{\omega}_b \times \bm{v}_b,
+\end{equation}
+where
+\begin{equation}
+    \bm{v}_b =
+    \begin{bmatrix} u & v & w \end{bmatrix}^{T},
+    \qquad
+    \bm{\omega}_b =
+    \begin{bmatrix} p & q & r \end{bmatrix}^{T}.
+\end{equation}
+The total body-frame force is decomposed as
+\begin{equation}
+    \bm{F}_b = \bm{F}_{aero,b} + \bm{F}_{eng,b} + \bm{F}_{g,b}.
+\end{equation}
+The gravitational force is computed using the current gravity assumption. At the present stage the project uses the fixed standard value $g_0$, defined in the constants module.
+
+\section{Rotational Dynamics}
+
+The rotational equations are
+\begin{equation}
+    \bm{J}\dot{\bm{\omega}}_b +
+    \bm{\omega}_b \times \left(\bm{J}\bm{\omega}_b\right) =
+    \bm{M}_b,
+\end{equation}
+where $\bm{J}$ is the inertia matrix about the centre of gravity and $\bm{M}_b$ is the total body-frame moment. The first-cut inertia model uses
+\begin{equation}
+    \bm{J} =
+    \begin{bmatrix}
+        I_{xx} & 0 & -I_{xz} \\
+        0 & I_{yy} & 0 \\
+        -I_{xz} & 0 & I_{zz}
+    \end{bmatrix}.
+\end{equation}
+The current implementation sets $I_{xz}=0$ to keep the early model simple. This assumption should be revisited after the plant can be trimmed and linearised.
+
+\section{Mass and Inertia Model}
+
+The mass module defines the mass envelope, nominal cruise mass, nominal approach mass and estimated inertia tensor. Because public certified inertia data for the aircraft are not available, the inertia tensor is estimated using effective radii of gyration based on public aircraft dimensions. This method is suitable for early integration but must be treated as an engineering approximation.
+
+The implementation separates mass properties from gravity-dependent forces. The function \texttt{b777\_mass\_inertia.m} returns a structure containing mass and inertia values, while force quantities are obtained by evaluating a function handle:
+\begin{lstlisting}[caption={Current gravity-dependent mass force interface.}]
+mass = b777_mass_inertia();
+forces = mass.forces(mass.standard_gravity_mps2);
+\end{lstlisting}
+This design allows the project to use fixed standard gravity at the current stage while preserving a clean interface for a future variable-gravity environment model.
+
+\section{Atmosphere Model}
+
+The atmosphere model is a simplified International Standard Atmosphere implementation up to \SI{20}{\kilo\metre}. It returns temperature, pressure, density, speed of sound and viscosity. The same standard gravity constant used by the mass module is used in the hydrostatic pressure relations. This avoids hidden inconsistencies between atmosphere and mass-force calculations.
+
+\section{Aerodynamic Model}
+
+The aerodynamic model was built as a staged, source-oriented database rather
+than as a single analytical coefficient block. This choice was made because a
+Boeing 777-class aircraft cannot be represented credibly by one simplified
+polar while still retaining the traceability required for trimming,
+linearisation and NMPC design. The implemented interface is provided by
+\texttt{b777\_aero\_database.m}. It separates the plant-facing coefficient
+request from the source, status and confidence level of each coefficient group.
+
+\subsection{Development Objective and Data Strategy}
+
+The main difficulty is that detailed Boeing 777 aerodynamic tables are not
+public. The model is therefore deliberately a B777-like engineering model, not
+a certified Boeing model. The development strategy is to combine public
+transport-aircraft aerodynamic data with semi-empirical derivative estimates
+and then accept data into the active plant only after validation gates have
+been passed.
+
+The adopted source hierarchy is:
+\begin{itemize}
+    \item B777-like geometry, reference area, span, mean aerodynamic chord and
+    centre-of-gravity data from the project aircraft data modules,
+    \item NASA Common Research Model data for the clean-cruise longitudinal
+    baseline \cite{nasaCRM,nasaCRMNtf197,nasaCRMCfdM085},
+    \item Digital DATCOM for missing static, damping and control derivative
+    candidates \cite{datcomPdas,datcomPdasDescription,datcomPdasDownload},
+    \item CRM-HL and DATCOM-ready high-lift increments for approach and landing
+    development \cite{nasaCRMHL},
+    \item OpenFOAM as a later verification tool for selected cases, not as the
+    primary database source \cite{openfoam}.
+\end{itemize}
+
+\subsection{Development Pipeline}
+
+\Cref{tab:aero_database_pipeline} summarises the construction path used in the
+project. The important design rule is that source data, candidate data and
+active plant data are not treated as the same thing.
+
+\begin{table}[H]
+    \centering
+    \caption{Aerodynamic database construction pipeline.}
+    \label{tab:aero_database_pipeline}
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.63\textwidth}}
+        \toprule
+        Layer & Engineering role and status \\
+        \midrule
+        Geometry and mass &
+        B777-like project geometry and mass properties define reference area,
+        span, mean aerodynamic chord and CG for force and moment scaling.
+        Active. \\
+        Clean cruise &
+        NASA CRM NTF197 TWICS data provide the active clean $C_L$, $C_D$ and
+        $C_m$ baseline inside the committed transonic cruise range. \\
+        Analytical seed &
+        \texttt{b777\_aero\_simple.m} provides fallback coefficients and
+        low-confidence residual terms when validated table data are not
+        available. Active as fallback. \\
+        Static and damping derivatives &
+        Digital DATCOM Mach-grid tables provide source-backed derivative
+        candidates. Not promoted until validation and warning review are
+        complete. \\
+        Control derivatives &
+        Digital DATCOM elevator and aileron control-grid tables provide direct
+        control-effectiveness candidates and document direct coverage gaps.
+        Candidate layer. \\
+        Derived gap-fill &
+        Geometry-based values derived from DATCOM candidates cover
+        active-interface gaps such as selected rudder terms and lateral drag
+        increments. Candidate layer. \\
+        High-lift increments &
+        A CRM-HL/DATCOM-ready clean, approach and landing table adds
+        configuration increments and $C_{L,\max}$ metadata. Active as an
+        engineering seed. \\
+        Validation gates &
+        Trim, modal and later performance validation evidence control whether
+        candidate data may replace the active seed layer. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Clean-Cruise Baseline}
+
+At the current implementation level, the active clean-cruise longitudinal table
+is a Mach-alpha grid derived from NASA CRM NTF Test 197 TWICS-corrected force
+and moment data. The selected clean candidate is identified in the source files
+by \texttt{CONFIG=3}, \texttt{CONFTS=1} and \texttt{CONFT=0}. The table stores
+$C_L$, $C_D$ and $C_m$ over $M \approx 0.70$ to $0.87$ and
+$\alpha=-2^\circ$ to $9^\circ$. Linear interpolation in Mach number and angle
+of attack is used only inside this committed range.
+
+The CRM geometry is not interpreted as the Boeing 777 geometry. Instead, CRM is
+used as a public, well documented transport-aircraft aerodynamic baseline. The
+B777-like reference geometry is used later when the nondimensional
+coefficients are converted into forces and moments.
+
+\subsection{Residual Derivative and Control Layers}
+
+The clean CRM grid does not provide the complete coefficient set required by a
+six-degree-of-freedom plant. Residual effects are therefore added through
+static, damping and control derivative layers. In compact form, the assembled
+coefficient vector can be written as
+\begin{equation}
+    \bm{C}_{aero} =
+    \bm{C}_{clean}(M,\alpha)
+    + \Delta\bm{C}_{\beta}(\beta)
+    + \Delta\bm{C}_{rates}(\hat{p},\hat{q},\hat{r})
+    + \Delta\bm{C}_{ctrl}(\delta_e,\delta_a,\delta_r)
+    + \Delta\bm{C}_{config},
+\end{equation}
+where $\bm{C}_{clean}$ contains the CRM clean longitudinal coefficients, $\Delta\bm{C}_{\beta}$ contains sideslip effects, $\Delta\bm{C}_{rates}$ contains damping effects, $\Delta\bm{C}_{ctrl}$ contains control-surface increments and $\Delta\bm{C}_{config}$ contains flap, slat and gear increments. The present active derivative values are still low-confidence engineering seeds, but their schema matches the intended replacement path through Digital DATCOM.
+
+A reproducible Digital DATCOM package has been added before activating any
+DATCOM-derived values. Clean B777-like static and damping decks are run at
+$M=0.30$, $0.50$, $0.60$, $0.70$ and $0.80$, and the extracted derivatives are
+consolidated into a Mach-dependent candidate table. A companion control-grid
+workflow extracts elevator and aileron effectiveness candidates from
+\texttt{SYMFLP} and \texttt{ASYFLP} cases over the same Mach stations. Terms not
+printed directly by the current DATCOM outputs, including $C_{D_\beta}$,
+$C_{Y_r}$, rudder derivatives and lateral control drag increments, are stored
+in a derived gap-fill candidate table. These gap-fill values are computed from
+the DATCOM candidate derivatives and the B777-like geometry, so they preserve
+active-interface coverage without being treated as direct DATCOM printouts.
+
+\subsection{Analytical Seed Model}
+
+The first-cut seed model provides lift, drag, side-force and moment coefficients as functions of angle of attack, sideslip, nondimensional angular rates and control-surface deflections. A representative longitudinal form is
+\begin{align}
+    C_L &= C_{L0} + C_{L\alpha}\alpha + C_{Lq}\hat{q} + C_{L\delta_e}\delta_e, \\
+    C_m &= C_{m0} + C_{m\alpha}\alpha + C_{mq}\hat{q} + C_{m\delta_e}\delta_e,
+\end{align}
+with a drag model of the form
+\begin{equation}
+    C_D = C_{D0} + k C_L^2 + C_{D\beta}\beta^2
+    + C_{D\delta_e}\delta_e^2
+    + C_{D\delta_a}\delta_a^2
+    + C_{D\delta_r}\delta_r^2.
+\end{equation}
+The coefficient signs follow the body-frame and control-surface conventions defined in the project.
+
+The seed model has two roles. First, it provides a simple complete coefficient
+set for software integration. Second, it defines the fallback behaviour outside
+the validated CRM grid. Whenever the database uses fallback values, the source
+metadata indicate that the coefficient group is not coming from validated table
+data.
+
+\subsection{Configuration and High-Lift Layer}
+
+The database layer also stores configuration metadata for clean, approach and
+landing cases. The current clean configuration uses the CRM grid only inside
+its local validity range. Inside that range, the CRM grid supplies the clean
+longitudinal baseline and the derivative table supplies residual
+lateral-directional, damping and control effects.
+
+The approach and landing configurations use a separate CRM-HL/DATCOM-ready
+high-lift seed table with explicit flap, slat, gear, lift-increment,
+drag-increment, pitching-moment-increment and $C_{L,\max}$ metadata. The
+$C_{L,\max}$ value is currently exposed for trim and validation checks, not as
+a complete stall model. These values are sufficient for software integration
+and initial trim testing, but they are not intended to represent certified
+aircraft data.
+
+\subsection{Candidate Promotion Policy}
+
+Static, control and damping derivatives are exposed through dedicated tables so
+that DATCOM or validation-derived estimates can later replace individual groups
+without changing the plant interface. The current DATCOM Mach-grid,
+control-grid and derived gap-fill files are therefore treated as review
+artifacts rather than active aerodynamic tables.
+
+The DATCOM candidates are controlled by automatic promotion gates. The gates
+check source identifiers, case traceability, run quality, Mach-grid
+consistency, coefficient signs, confidence thresholds, control-derivative
+coverage and active-interface coverage. Clean-cruise longitudinal trim
+validation and restricted longitudinal modal validation have passed for three
+DATCOM-candidate cases, but the candidate derivatives remain inactive until the
+warning review is complete. This prevents a partially reviewed candidate table
+from silently entering the nonlinear plant. The final aerodynamic database
+should be treated as acceptable for NMPC studies only after trim, modal and
+performance validation gates have been passed.
+
+\subsection{Conversion to Forces and Moments}
+
+The plant-facing aerodynamic load model is implemented by \path{b777_aero_forces_moments.m}. It evaluates the coefficient database, computes dynamic pressure, transforms the wind-axis force vector into the body frame and scales the moment coefficients by the project reference span and mean aerodynamic chord:
+\begin{align}
+    \bm{F}_{w} &= q_{\infty} S
+        \begin{bmatrix}
+            -C_D & C_Y & -C_L
+        \end{bmatrix}^{T}, \\
+    \bm{F}_{b} &= \bm{C}_{bw}(\alpha,\beta)\bm{F}_{w}, \\
+    \bm{M}_{ref,b} &= q_{\infty}S
+        \begin{bmatrix}
+            bC_l & \bar{c}C_m & bC_n
+        \end{bmatrix}^{T}.
+\end{align}
+If the aerodynamic reference point is not coincident with the current centre of gravity, the moment is shifted using
+\begin{equation}
+    \bm{M}_{cg,b} =
+    \bm{M}_{ref,b} + \bm{r}_{ref/cg,b} \times \bm{F}_{b}.
+\end{equation}
+This step makes the aerodynamic database usable by the nonlinear plant while keeping the moment-reference policy explicit.
+
+\section{Actuator and Engine Model}
+
+The plant will apply command signals through actuator and engine dynamics. A generic first-order actuator model can be expressed as
+\begin{equation}
+    \dot{\delta} =
+    \operatorname{sat}_{\dot{\delta}_{min},\dot{\delta}_{max}}
+    \left(\frac{\delta_{cmd}-\delta}{\tau_{\delta}}\right),
+\end{equation}
+with position limits
+\begin{equation}
+    \delta_{min} \leq \delta \leq \delta_{max}.
+\end{equation}
+Engine thrust dynamics can be represented analogously by a first-order lag between commanded and actual thrust. These dynamics are essential for a realistic NMPC formulation because they define the achievable rate of change of aircraft forces and moments.

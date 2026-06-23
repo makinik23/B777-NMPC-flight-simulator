@@ -1,0 +1,15 @@
+gate_id,status,severity,details
+source_id,pass,blocker,candidate source ids: DIGITAL_DATCOM_B777_LIKE_MACH_GRID_CANDIDATE_V0
+case_traceability,pass,blocker,case_source_id count=5; expected=5
+run_quality,pass,blocker,all DATCOM Mach-grid runs must have datcom_exit_status=0 and error_count=0
+warning_review,review,review,warning_count values: 1; known DATCOM body-alone dynamic-derivative warning must remain documented
+mach_grid,pass,blocker,"candidate Mach grid=[0.3, 0.5, 0.6, 0.7, 0.8]; expected=[0.3, 0.5, 0.6, 0.7, 0.8]"
+row_count,pass,blocker,candidate row count=50; expected=50
+candidate_status,pass,blocker,candidate statuses: candidate-pending-review
+interpolation_policy,pass,blocker,interpolation policies: linear in Mach inside committed grid; no extrapolation before validation
+expected_signs,pass,blocker,all expected static and damping signs pass
+candidate_confidence_floor,pass,blocker,minimum candidate confidence=0.30; required >=0.30 before promotion
+active_table_coverage,pass,blocker,"candidate active-table coefficients: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r, dynamic.CL_q, dynamic.CY_p, dynamic.CY_r, dynamic.Cl_p, dynamic.Cl_r, dynamic.Cm_q, dynamic.Cn_p, dynamic.Cn_r, static.CD_beta, static.CY_beta, static.Cl_beta, static.Cn_beta; missing: none"
+control_derivatives,pass,blocker,"candidate control coefficients: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r; required: control.CD_delta_a, control.CD_delta_e, control.CD_delta_r, control.CL_delta_e, control.CY_delta_a, control.CY_delta_r, control.Cl_delta_a, control.Cl_delta_r, control.Cm_delta_e, control.Cn_delta_a, control.Cn_delta_r; missing: none"
+trim_validation,pass,blocker,requires DATCOM_PROMOTION_TRIM_VALIDATED=true in validation report
+modal_validation,pass,blocker,requires DATCOM_PROMOTION_MODAL_VALIDATED=true in validation report

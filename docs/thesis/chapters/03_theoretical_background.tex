@@ -1,0 +1,36 @@
+\chapter{Theoretical Background}
+
+\section{Reference Frames in Flight Mechanics}
+
+Aircraft motion is described using several coordinate frames \cite{stevens2015aircraft,cook2012flight}. The navigation frame used in this project is a local North-East-Down frame. Its axes point north, east and down, respectively. Altitude is therefore related to the down coordinate by $h=-D$.
+
+The body frame is fixed to the aircraft. Its $x_b$ axis points forward through the nose, its $y_b$ axis points through the right wing and its $z_b$ axis points downward. This convention is right-handed and is compatible with many aerospace simulation formulations. The wind frame is aligned with the air-relative velocity vector and is convenient for defining lift, drag, angle of attack and sideslip.
+
+\section{Six-Degree-of-Freedom Aircraft Motion}
+
+A six-degree-of-freedom aircraft model describes translational and rotational motion of a rigid body. The translational dynamics are obtained from Newton's second law expressed in a rotating body frame. The rotational dynamics are obtained from Euler's rigid-body equations. The state typically contains position, velocity, attitude and angular rates. In this project the state is extended by engine thrust and actuator states so that propulsion and control-surface dynamics are not assumed to be instantaneous.
+
+\section{Aerodynamic Coefficient Modelling}
+
+Aerodynamic forces and moments are commonly represented using nondimensional coefficients. Dynamic pressure is defined as
+\begin{equation}
+    q_{\infty} = \frac{1}{2}\rho V^2,
+\end{equation}
+where $\rho$ is air density and $V$ is true airspeed. Lift, drag and moments are then scaled using reference area, span and mean aerodynamic chord. For example,
+\begin{equation}
+    L = q_{\infty} S C_L, \qquad
+    D = q_{\infty} S C_D, \qquad
+    M = q_{\infty} S \bar{c} C_m .
+\end{equation}
+
+For an engineering first cut, the coefficients may be approximated by linear derivatives and simple nonlinear drag terms. Such a model is not sufficient for high-fidelity prediction near stall or in complex configurations, but it is adequate for early integration and control-design experiments when its validity range is clearly stated.
+
+\section{Propulsion and Actuator Dynamics}
+
+The propulsion model maps throttle commands to thrust. A realistic engine does not change thrust instantaneously, therefore the simulation model should include at least first-order spool dynamics. Similarly, control surfaces should include position limits, rate limits and possibly first-order actuator dynamics. These elements are important because NMPC relies on accurate constraint representation.
+
+\section{Nonlinear Model Predictive Control}
+
+Nonlinear Model Predictive Control solves an optimisation problem at each control update. The controller predicts future system behaviour over a finite horizon and selects an input sequence that minimises a cost function while satisfying constraints \cite{rawlings2017mpc,grune2017nmpc}. Only the first input is applied to the plant, and the optimisation is repeated at the next sampling instant.
+
+NMPC is attractive for aircraft autopilot design because it can explicitly include actuator limits, thrust limits, attitude limits, airspeed bounds, load-factor constraints and path-tracking objectives. Its main disadvantage is computational complexity, which motivates the use of reduced-order prediction models and carefully selected sampling times.

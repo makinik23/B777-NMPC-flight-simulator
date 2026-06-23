@@ -1,0 +1,14 @@
+source_id=DIGITAL_DATCOM_B777_LIKE_MACH_GRID_CANDIDATE_V0
+interpolation_policy=linear in Mach inside committed grid; no extrapolation before validation
+mach_count=5
+mach_grid=0.30 0.50 0.60 0.70 0.80
+CY_beta: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.39304905 value_max=-0.35145231
+Cl_beta: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.10061139 value_max=-0.09121488
+Cn_beta: count=5 mach_min=0.30 mach_max=0.80 value_min=0.04693097 value_max=0.08009950
+CL_q: count=5 mach_min=0.30 mach_max=0.80 value_min=14.18643501 value_max=16.36367463
+Cm_q: count=5 mach_min=0.30 mach_max=0.80 value_min=-57.23275416 value_max=-49.33166616
+CY_p: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.12186812 value_max=-0.10381995
+Cl_p: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.39327823 value_max=-0.33518031
+Cn_p: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.02514712 value_max=-0.02056918
+Cn_r: count=5 mach_min=0.30 mach_max=0.80 value_min=-0.20053523 value_max=-0.17119979
+Cl_r: count=5 mach_min=0.30 mach_max=0.80 value_min=0.02810931 value_max=0.03098556

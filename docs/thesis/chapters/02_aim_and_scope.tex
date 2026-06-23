@@ -1,0 +1,52 @@
+\chapter{Aim and Scope of the Thesis}
+
+\section{Main Aim}
+
+The main aim of this thesis is to develop a nonlinear simulation environment for a Boeing 777-like transport aircraft and to design an autopilot concept based on Nonlinear Model Predictive Control. The simulator is intended to support analysis of six-degree-of-freedom aircraft motion, trimming in representative flight conditions and evaluation of constrained control algorithms.
+
+\section{Detailed Objectives}
+
+The detailed objectives of the work are:
+\begin{enumerate}
+    \item to define coordinate frames, sign conventions, state vectors and input vectors used throughout the project,
+    \item to prepare a first-cut geometry, mass and inertia model of a Boeing 777-like aircraft,
+    \item to implement a simple International Standard Atmosphere model and fixed project constants,
+    \item to implement a simplified aerodynamic coefficient model suitable for early flight-dynamics integration,
+    \item to define a propulsion and actuator modelling approach,
+    \item to formulate the nonlinear six-degree-of-freedom equations of motion,
+    \item to prepare trimming and validation procedures for selected reference cases,
+    \item to design longitudinal and lateral-directional NMPC control structures,
+    \item to evaluate the model and controller using repeatable simulation scenarios.
+\end{enumerate}
+
+\section{Scope}
+
+The scope of the thesis includes rigid-body flight dynamics, simplified aerodynamics, simplified propulsion, actuator limits, standard atmosphere modelling, trimming, qualitative validation and NMPC autopilot design. The implementation target is MATLAB/Simulink, with MATLAB data modules used to define reusable aircraft and environment parameters.
+
+The following topics are outside the scope of the present work:
+\begin{itemize}
+    \item structural flexibility and aeroelastic effects,
+    \item detailed hydraulic, electrical or avionics system models,
+    \item certified flight-control laws,
+    \item proprietary aerodynamic or engine data,
+    \item high-fidelity pilot-display or flight-management-system simulation,
+    \item certification-level validation.
+\end{itemize}
+
+\section{Assumptions and Limitations}
+
+The aircraft is treated as a rigid body. The Earth is initially approximated as flat and non-rotating, and the navigation frame is a local North-East-Down frame. All internal calculations are performed in SI units. The current implementation uses fixed standard gravity $g_0=\SI{9.80665}{\metre\per\square\second}$ as a project-wide constant. Gravity-dependent force quantities are computed from mass and the selected gravity value rather than stored as immutable mass properties.
+
+The aerodynamic model is intentionally simple. Its purpose is to provide physically reasonable signs, magnitudes and coupling terms for early simulation and control-design studies. The model is expected to be refined after trim tests and dynamic-response validation.
+
+\section{Success Criteria}
+
+The project will be considered successful if the following criteria are met:
+\begin{enumerate}
+    \item the six-degree-of-freedom plant can be executed in simulation without numerical instability caused by modelling errors,
+    \item trim points can be obtained for several representative flight conditions,
+    \item open-loop dynamic responses are qualitatively consistent with expectations for a large transport aircraft,
+    \item the NMPC controller can stabilise and track selected flight variables,
+    \item actuator, thrust and selected state constraints are respected during simulation,
+    \item the obtained results are documented with plots, tables and engineering interpretation.
+\end{enumerate}

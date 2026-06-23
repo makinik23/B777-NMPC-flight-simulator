@@ -1,0 +1,157 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% =========================================================
+% Engineering thesis working draft
+% Project: B777-like Flight Dynamics + NMPC Autopilot
+% =========================================================
+
+% --- Language and encoding ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{csquotes}
+
+% --- Mathematics, units and symbols ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\setcounter{MaxMatrixCols}{20}
+\usepackage{siunitx}
+\sisetup{
+    per-mode = symbol,
+    separate-uncertainty = true
+}
+
+% --- Figures, tables and page layout ---
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{geometry}
+\usepackage{setspace}
+\geometry{left=3.0cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\onehalfspacing
+\setlength{\emergencystretch}{3em}
+
+% --- Headers and footers ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setlength{\headheight}{15pt}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Source code listings ---
+\usepackage{xcolor}
+\usepackage{listings}
+\lstdefinelanguage{Matlab}{
+  morekeywords={function,end,if,else,elseif,for,while,switch,case,otherwise,return,struct,NaN,true,false,classdef,properties,methods},
+  sensitive=true,
+  morecomment=[l]\%,
+  morestring=[m]'
+}
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  breaklines=true,
+  captionpos=b
+}
+
+% --- Cross-references ---
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise,nameinlink]{cleveref}
+
+% --- Bibliography ---
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{references.bib}
+\AtBeginBibliography{\raggedright\sloppy}
+
+% --- Thesis metadata ---
+\newcommand{\University}{Warsaw University of Technology}
+\newcommand{\Faculty}{Faculty of Power and Aeronautical Engineering}
+\newcommand{\Field}{Aerospace Engineering}
+\newcommand{\AuthorName}{Julian Kazmierski}
+\newcommand{\SupervisorName}{TBD}
+\newcommand{\ThesisTitle}{Flight Dynamics Modelling of a Boeing 777-like Aircraft and Autopilot Design Using Nonlinear Model Predictive Control}
+\newcommand{\ThesisType}{Engineering Thesis -- Working Draft}
+
+\begin{document}
+
+% =========================================================
+% Front matter
+% =========================================================
+\pagenumbering{gobble}
+
+\begin{titlepage}
+    \centering
+    {\Large \University\par}
+    \vspace{0.3cm}
+    {\large \Faculty\par}
+    \vspace{0.3cm}
+    {\large Programme: \Field\par}
+
+    \vspace{2.5cm}
+    {\large \ThesisType\par}
+    \vspace{1.0cm}
+    {\LARGE\bfseries \ThesisTitle\par}
+
+    \vspace{2.5cm}
+    \begin{flushright}
+        \begin{tabular}{rl}
+            Author: & \AuthorName \\
+            Supervisor: & \SupervisorName \\
+        \end{tabular}
+    \end{flushright}
+
+    \vfill
+    {Warsaw, \the\year\par}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{Roman}
+
+\input{preliminaries/abstract}
+\input{preliminaries/model_notice}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\input{preliminaries/nomenclature}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% =========================================================
+% Main matter
+% =========================================================
+\input{chapters/01_introduction}
+\input{chapters/02_aim_and_scope}
+\input{chapters/03_theoretical_background}
+\input{chapters/04_mathematical_model}
+\input{chapters/05_implementation}
+\input{chapters/06_trim_and_validation}
+\input{chapters/07_autopilot_nmpc}
+\input{chapters/08_simulation_studies}
+\input{chapters/09_conclusions}
+
+\nocite{*}
+\printbibliography[heading=bibintoc,title={References}]
+
+\appendix
+\input{chapters/A_project_structure}
+\input{chapters/B_work_log}
+
+\end{document}
