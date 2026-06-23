@@ -4,7 +4,7 @@ Nonlinear flight dynamics simulator for a Boeing 777-like aircraft and Nonlinear
 
 ## Structure
 
-- `data/` - geometry, mass, inertia, atmosphere, aerodynamic database, thrust and flight configurations.
+- `data/` - geometry, mass, inertia, atmosphere, aerodynamic database, actuator, thrust and flight configurations.
 - `plant/` - nonlinear 6DOF plant adapters.
 - `nmpc/` - state definitions, outputs, cost functions and constraints for NMPC.
 - `guidance/` - MCP, mode manager, LNAV/VNAV/ILS and reference generators.
@@ -12,7 +12,7 @@ Nonlinear flight dynamics simulator for a Boeing 777-like aircraft and Nonlinear
 - `models/` - Simulink `.slx` models.
 - `plots/` - output graphs.
 - `docs/` - engineering documentation and thesis sources.
-- `tests/` - feature-oriented MATLAB checks for project structure, data, aerodynamics and engine loads.
+- `tests/` - feature-oriented MATLAB checks for project structure, data, aerodynamics, engine loads and actuator dynamics.
 - `tools/` - Python and shell helpers for DATCOM extraction, validation and reports.
 
 ## Thesis PDF
@@ -49,6 +49,11 @@ propulsion seed: static thrust consistency with the geometry module,
 altitude/Mach thrust lapse, idle-to-maximum throttle mapping, first-order
 spool derivatives and body-axis force/moment signs for symmetric and
 asymmetric thrust.
+
+`tests/features/test_actuator_dynamics.m` validates the first control-surface
+actuator seed: elevator, effective aileron and rudder position limits, rate
+limits, first-order response signs and the current-deflection control output
+used by the aerodynamic database.
 
 The first reproducible Digital DATCOM run package is documented in
 `docs/datcom_workflow.md`. It now includes a five-point Mach-grid runner that

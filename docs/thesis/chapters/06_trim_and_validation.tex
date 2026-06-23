@@ -126,26 +126,14 @@ All three cases produce two stable oscillatory mode pairs. The phugoid natural f
 \end{equation}
 This result is still limited to the restricted longitudinal model. It does not validate lateral-directional modes, actuator dynamics, engine pitching moments or a fully coupled six-degree-of-freedom linearisation.
 
-\section{Reference Cases}
+\section{Remaining Validation Work}
 
-The project defines representative reference cases in \texttt{reference\_cases.m}. The first case is a nominal cruise condition at approximately 35000 ft, or \SI{10668}{\metre}. The second case is an approach condition at approximately 3000 ft, or \SI{914.4}{\metre}, and a negative flight-path angle. Each case stores mass in kilograms and uses the fixed project gravity value. This avoids ambiguity associated with symbolic mass-case names and keeps the trim problem tied to explicit physical parameters.
-
-\section{Validation Strategy}
-
-Because certified aerodynamic and engine data are not available, validation is initially qualitative and consistency-based. The following checks define the staged validation path:
-\begin{itemize}
-    \item sign checks for aerodynamic derivatives and control effects,
-    \item static stability checks in longitudinal and lateral-directional channels,
-    \item trim residual checks for each reference case,
-    \item open-loop response checks for elevator, aileron, rudder and throttle perturbations,
-    \item comparison of modal behaviour with expected transport-aircraft tendencies,
-    \item sensitivity checks for mass and configuration changes.
-\end{itemize}
-
-\section{Linearisation Around Trim}
-
-After trim points are found, the nonlinear plant can be linearised around selected operating points:
+The current checks validate only a restricted clean-cruise longitudinal path.
+The next validation step is a full-plant trim and linearisation around selected
+reference cases:
 \begin{equation}
     \Delta\dot{\bm{x}} = \bm{A}\Delta\bm{x} + \bm{B}\Delta\bm{u}.
 \end{equation}
-The resulting linear models will support analysis of phugoid, short-period, Dutch-roll, roll and spiral modes. The current restricted longitudinal modal check covers only the phugoid and short-period modes. A later full-plant linearisation should add lateral-directional and coupled six-degree-of-freedom modal checks before the aircraft model is used as the final NMPC validation plant.
+The resulting models should add lateral-directional and coupled
+six-degree-of-freedom modal checks before the aircraft model is used as the
+final NMPC validation plant.

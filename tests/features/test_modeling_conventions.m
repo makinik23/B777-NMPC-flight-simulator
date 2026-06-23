@@ -9,14 +9,14 @@ addpath(fullfile(projectRoot, "data"));
 
 fprintf("Running modelling-conventions feature test...\n\n");
 
-%% Check if convention file exists
+% Check if convention file exists
 
 assert(exist("conventions", "file") == 2, ...
     "Could not find data/conventions.m on MATLAB path.");
 
 conv = conventions();
 
-%% Check full 6-DOF state vector
+% Check full 6-DOF state vector
 
 nStateNames = numel(conv.state.full6dof.names);
 nStateUnits = numel(conv.state.full6dof.units);
@@ -31,7 +31,7 @@ assert(nStateNames == nStateDescriptions, ...
 assert(nStateNames == 17, ...
     "Expected full 6-DOF state vector to contain 17 states.");
 
-%% Check command input vector
+% Check command input vector
 
 nInputNames = numel(conv.input.command.names);
 nInputUnits = numel(conv.input.command.units);
@@ -46,7 +46,7 @@ assert(nInputNames == nInputDescriptions, ...
 assert(nInputNames == 5, ...
     "Expected command input vector to contain 5 command inputs.");
 
-%% Check reduced NMPC models
+% Check reduced NMPC models
 
 assert(numel(conv.state.longitudinalNmpc.names) == 6, ...
     "Expected longitudinal NMPC model to contain 6 states.");
@@ -60,7 +60,7 @@ assert(numel(conv.state.lateralNmpc.names) == 6, ...
 assert(numel(conv.input.lateralNmpc.names) == 2, ...
     "Expected lateral-directional NMPC model to contain 2 inputs.");
 
-%% Print summary
+% Print summary
 
 fprintf("Project: %s\n", conv.project.aircraftClass);
 fprintf("Model type: %s\n\n", conv.project.modelType);

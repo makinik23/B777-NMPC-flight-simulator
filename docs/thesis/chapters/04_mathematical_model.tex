@@ -126,7 +126,8 @@ been passed.
 The adopted source hierarchy is:
 \begin{itemize}
     \item B777-like geometry, reference area, span, mean aerodynamic chord and
-    centre-of-gravity data from the project aircraft data modules,
+    centre-of-gravity data from the project aircraft data modules
+    \cite{boeing777,boeingAirportPlanning},
     \item NASA Common Research Model data for the clean-cruise longitudinal
     baseline \cite{nasaCRM,nasaCRMNtf197,nasaCRMCfdM085},
     \item Digital DATCOM for missing static, damping and control derivative
@@ -139,52 +140,14 @@ The adopted source hierarchy is:
 
 \subsection{Development Pipeline}
 
-\Cref{tab:aero_database_pipeline} summarises the construction path used in the
-project. The important design rule is that source data, candidate data and
-active plant data are not treated as the same thing.
-
-\begin{table}[H]
-    \centering
-    \caption{Aerodynamic database construction pipeline.}
-    \label{tab:aero_database_pipeline}
-    \small
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.63\textwidth}}
-        \toprule
-        Layer & Engineering role and status \\
-        \midrule
-        Geometry and mass &
-        B777-like project geometry and mass properties define reference area,
-        span, mean aerodynamic chord and CG for force and moment scaling.
-        Active. \\
-        Clean cruise &
-        NASA CRM NTF197 TWICS data provide the active clean $C_L$, $C_D$ and
-        $C_m$ baseline inside the committed transonic cruise range. \\
-        Analytical seed &
-        \texttt{b777\_aero\_simple.m} provides fallback coefficients and
-        low-confidence residual terms when validated table data are not
-        available. Active as fallback. \\
-        Static and damping derivatives &
-        Digital DATCOM Mach-grid tables provide source-backed derivative
-        candidates. Not promoted until validation and warning review are
-        complete. \\
-        Control derivatives &
-        Digital DATCOM elevator and aileron control-grid tables provide direct
-        control-effectiveness candidates and document direct coverage gaps.
-        Candidate layer. \\
-        Derived gap-fill &
-        Geometry-based values derived from DATCOM candidates cover
-        active-interface gaps such as selected rudder terms and lateral drag
-        increments. Candidate layer. \\
-        High-lift increments &
-        A CRM-HL/DATCOM-ready clean, approach and landing table adds
-        configuration increments and $C_{L,\max}$ metadata. Active as an
-        engineering seed. \\
-        Validation gates &
-        Trim, modal and later performance validation evidence control whether
-        candidate data may replace the active seed layer. \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The construction path is deliberately staged. Geometry and mass define the
+reference quantities. NASA CRM data provide the active clean-cruise baseline.
+The analytical seed remains available as a complete fallback. Digital DATCOM
+Mach-grid, control-grid and derived gap-fill outputs are stored as candidate
+derivative data until validation gates allow promotion. CRM-HL/DATCOM-ready
+increments provide the first approach and landing configuration layer. The key
+rule is that source data, candidate data and active plant data are not treated
+as the same thing.
 
 \subsection{Clean-Cruise Baseline}
 
@@ -309,16 +272,34 @@ This step makes the aerodynamic database usable by the nonlinear plant while kee
 
 \section{Actuator and Engine Model}
 
-The plant will apply command signals through actuator and engine dynamics. A generic first-order actuator model can be expressed as
+The plant applies command signals through actuator and engine dynamics rather
+than feeding commanded values directly into the force and moment equations. The
+current control-surface actuator model covers elevator, effective aileron and
+rudder deflections. Each commanded deflection is first limited to the available
+surface range:
+\begin{equation}
+    \delta_{cmd,lim} =
+    \operatorname{sat}_{\delta_{min},\delta_{max}}
+    \left(\delta_{cmd}\right).
+\end{equation}
+The actual surface state then follows a rate-limited first-order lag,
 \begin{equation}
     \dot{\delta} =
     \operatorname{sat}_{\dot{\delta}_{min},\dot{\delta}_{max}}
-    \left(\frac{\delta_{cmd}-\delta}{\tau_{\delta}}\right),
+    \left(\frac{\delta_{cmd,lim}-\delta}{\tau_{\delta}}\right),
 \end{equation}
 with position limits
 \begin{equation}
     \delta_{min} \leq \delta \leq \delta_{max}.
 \end{equation}
+If a surface is already at a position limit, the rate command is prevented
+from driving it farther outside the admissible range. The first implementation
+uses engineering estimates of the limits and time constants: elevator
+$\pm 25^\circ$, effective aileron $\pm 20^\circ$ and rudder $\pm 30^\circ$.
+The actuator output passed to the aerodynamic model is the current actual
+deflection, not the commanded value. This separation is required for NMPC
+because the controller must respect both surface deflection limits and surface
+rate limits.
 
 The current propulsion model represents two under-wing turbofan engines. It is
 not a certified GE90 engine deck; it is an engineering seed based on public

@@ -1,160 +1,78 @@
 \chapter{Implementation}
 
-\section{Project Organisation}
+\section{Software Organisation}
 
-The project is organised as a modular MATLAB/Simulink workspace. Aircraft data, environment constants, aerodynamic coefficients and reference cases are stored separately from plant dynamics and controller code. This structure supports incremental validation and makes it easier to replace simplified modules with more accurate versions later in the project.
+The implementation is organised as a modular MATLAB/Simulink workspace. The
+\texttt{data} directory contains reusable aircraft, atmosphere, aerodynamic,
+propulsion and actuator data. The \texttt{plant} directory contains adapters
+that convert those data into forces, moments and state derivatives. The
+\texttt{tests} directory contains feature-oriented MATLAB checks, while
+\texttt{tools} stores scripts used to reproduce DATCOM extraction and validation
+artifacts.
 
-\begin{table}[H]
-    \centering
-    \caption{Main project directories.}
-    \begin{tabular}{ll}
-        \toprule
-        Directory & Purpose \\
-        \midrule
-        \texttt{data} & aircraft, atmosphere, aerodynamic and reference-case data \\
-        \texttt{plant} & nonlinear six-degree-of-freedom plant implementation \\
-        \texttt{nmpc} & predictive controller models and controller-generation scripts \\
-        \texttt{guidance} & mode logic and trajectory-reference generation \\
-        \texttt{validation} & trim, dynamic-response and autopilot validation scripts \\
-        \texttt{models} & Simulink model files \\
-        \texttt{tests} & feature-oriented MATLAB checks \\
-        \texttt{tools} & DATCOM extraction, validation and reporting helpers \\
-        \texttt{docs} & documentation and thesis sources \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The main implementation rule is separation of concerns. Fixed aircraft
+properties, environment models, aerodynamic data, actuator dynamics and plant
+force build-up are kept in separate modules. This keeps each assumption
+traceable and allows individual layers to be replaced without changing the full
+plant interface.
 
-\section{Data Modules}
+\section{Implemented Modules}
 
-The current implementation contains the following data modules:
+The current data layer contains:
 \begin{itemize}
-    \item \texttt{b777\_constants.m}, which defines project-wide constants such as standard gravity,
-    \item \texttt{b777\_geometry.m}, which defines B777-300ER-like geometry and reference dimensions,
-    \item \texttt{b777\_mass\_inertia.m}, which defines mass envelope values and first-cut inertia estimates,
-    \item \texttt{b777\_atmosphere\_isa.m}, which provides a simple ISA atmosphere model,
-    \item \texttt{b777\_engine\_model.m}, which defines the first B777-like propulsion seed and thrust-lapse interface,
-    \item \texttt{b777\_aero\_database.m}, which defines the staged aerodynamic database interface and source inventory,
-    \item \texttt{b777\_aero\_clean\_crm\_seed.m}, which exposes the NASA CRM clean Mach-alpha grid,
-    \item \texttt{b777\_aero\_read\_crm\_clean\_grid\_csv.m}, which reads the curated NASA CRM clean grid,
-    \item \texttt{b777\_aero\_read\_crm\_force\_moment\_csv.m}, which reads NASA CRM force and moment CSV files,
-    \item \texttt{b777\_aero\_read\_derivative\_csv.m}, which reads source-oriented derivative tables,
-    \item \texttt{b777\_aero\_read\_mach\_derivative\_csv.m}, which reads source-oriented Mach-dependent derivative candidate tables,
-    \item \texttt{b777\_aero\_read\_high\_lift\_csv.m}, which reads source-oriented high-lift increment tables,
-    \item \texttt{b777\_aero\_derivative\_seed.m}, which exposes the DATCOM-ready static, control and damping residual derivatives,
-    \item \texttt{b777\_aero\_high\_lift\_seed.m}, which exposes the CRM-HL/DATCOM-ready clean, approach and landing configuration increments,
-    \item \texttt{b777\_aero\_simple.m}, which defines a first-cut aerodynamic coefficient model,
-    \item \texttt{b777\_configs.m}, which defines aircraft configurations,
-    \item \texttt{reference\_cases.m}, which defines representative flight conditions for trim and validation,
-    \item \texttt{conventions.m}, which records units, frames, states and input conventions.
+    \item geometry, mass, inertia, constants and ISA atmosphere modules,
+    \item a staged aerodynamic database with CRM clean-cruise data, DATCOM-ready
+    derivative layers and high-lift increments,
+    \item a B777-like propulsion seed with thrust lapse and spool dynamics,
+    \item a control-surface actuator seed with position and rate limits,
+    \item reference cases, configurations and modelling conventions.
 \end{itemize}
 
-The data modules use explicit field names containing units where practical. This convention is intentionally verbose, but it reduces ambiguity and supports code review. For example, mass values are stored with the suffix \texttt{\_kg}, while speeds use \texttt{\_mps}.
+The current plant-facing adapters are:
+\begin{itemize}
+    \item \texttt{b777\_aero\_forces\_moments.m}, which converts aerodynamic
+    coefficients into body-axis forces and moments,
+    \item \texttt{b777\_engine\_forces\_moments.m}, which converts left and
+    right engine thrust into body-axis propulsion loads,
+    \item \texttt{b777\_actuator\_dynamics.m}, which maps commanded
+    control-surface deflections to actual surface-state derivatives.
+\end{itemize}
 
-\subsection{Aerodynamic Database Build Workflow}
+\section{Aerodynamic Data Processing}
 
-The aerodynamic database was implemented as a sequence of reproducible data
-preparation steps. The workflow is intentionally conservative: each generated
-candidate table carries a source identifier and remains separate from the
-active plant table until validation and review criteria are satisfied.
+The aerodynamic database is built from versioned source files and reproducible
+helper scripts. NASA CRM data provide the active clean-cruise longitudinal
+baseline. Digital DATCOM outputs are parsed into candidate derivative tables
+for static, damping and control effects. Derived gap-fill candidates cover
+interface terms that are not printed directly by the current DATCOM workflow.
+Trim, modal and promotion-gate reports are stored as validation evidence before
+candidate data are promoted.
 
-The practical build sequence is:
-\begin{enumerate}
-    \item define the B777-like reference geometry and mass properties used for
-    aerodynamic scaling;
-    \item read the curated NASA CRM clean Mach-alpha grid and expose it as the
-    active clean-cruise longitudinal baseline;
-    \item preserve the analytical seed model as a complete fallback model for
-    states and coefficient groups not covered by validated data;
-    \item generate and run Digital DATCOM clean static and damping decks at the
-    selected Mach stations;
-    \item parse the DATCOM output, convert printed derivatives to project
-    units and consolidate the per-Mach outputs into a candidate derivative
-    table;
-    \item generate and run elevator and aileron control-effectiveness decks,
-    then consolidate direct control-derivative candidates;
-    \item derive low-confidence gap-fill candidates for active-interface terms
-    not printed directly by the current DATCOM workflow;
-    \item solve clean-cruise longitudinal trim cases for the candidate
-    aerodynamic path;
-    \item linearise a restricted longitudinal model at the same trim points and
-    check the phugoid and short-period modes;
-    \item evaluate promotion gates before any candidate derivative replaces the
-    active seed table.
-\end{enumerate}
+Generated DATCOM run folders are treated as reproducible workspace outputs and
+are not stored as source data. The committed repository retains the input
+decks, candidate CSV files, reports and validation artifacts needed to audit
+the modelling chain.
 
-The repository contains the scripts required to reproduce those steps. The
-script \path{tools/run_digital_datcom.sh} downloads the public-domain DATCOM
-archive from PDAS, compiles the legacy Fortran source locally and runs a
-committed B777-like input deck. The extractor
-\path{tools/extract_datcom_derivatives.py} parses the static and dynamic
-derivative tables, converts derivatives printed per degree to derivatives per
-radian and records skipped cells such as \texttt{NDM}.
+\section{Feature Tests}
 
-The wrapper \path{tools/run_datcom_mach_grid.sh} runs the committed clean
-single-condition decks at $M=0.30$, $0.50$, $0.60$, $0.70$ and $0.80$.
-\path{tools/build_datcom_mach_grid_table.py} consolidates the per-Mach
-candidate files into one Mach-dependent table with a grid-level source
-identifier and retained per-run source identifiers.
+Feature tests check module interfaces and modelling conventions rather than
+certifying aircraft fidelity. They currently verify:
+\begin{itemize}
+    \item project structure and MATLAB path assumptions,
+    \item state, input, unit and sign conventions,
+    \item geometry, mass, inertia, atmosphere and reference-case consistency,
+    \item aerodynamic source inventory, coefficient behaviour and load signs,
+    \item engine thrust mapping, thrust lapse, spool derivatives and asymmetric
+    thrust moments,
+    \item actuator position limits, rate limits and command-to-state mapping.
+\end{itemize}
 
-The companion wrapper \path{tools/run_datcom_control_grid.sh} generates and
-runs elevator and aileron control-effectiveness decks over the same Mach grid.
-Its extractor, \path{tools/extract_datcom_control_derivatives.py}, parses the
-DATCOM high-lift/control-device output and produces source-backed candidates
-for elevator and aileron derivatives. The helper
-\path{tools/build_datcom_control_grid_table.py} consolidates these control
-candidates and records which entries are not direct DATCOM printouts.
-\path{tools/build_datcom_gap_fill_candidates.py} then derives low-confidence
-active-interface candidates for $C_{D_\beta}$, $C_{Y_r}$, rudder derivatives
-and lateral control drag from the DATCOM candidate tables and the B777-like
-geometry.
+These tests are intended to catch convention errors early. Physical validation
+is handled separately through trim, modal and later simulation studies.
 
-The validation scripts form the final part of the workflow.
-\path{tools/run_trim_validation.py} solves clean-cruise longitudinal trim cases
-for the DATCOM candidate path and writes both a case table and a report.
-\path{tools/run_longitudinal_modal_validation.py} linearises a restricted
-longitudinal model around the same trim points and checks the phugoid and
-short-period modes. Finally,
-\path{tools/evaluate_datcom_promotion_gates.py} evaluates whether the direct
-and derived candidate tables are allowed to replace the active derivative seed.
-The resulting candidate CSV files, extraction reports, promotion-gate reports,
-trim-validation artifacts and modal-validation artifacts are stored under
-\path{data/aerodynamics/raw/datcom}, \path{data/aerodynamics/validation} and
-\path{docs}. Generated DATCOM run folders are treated as reproducible workspace
-outputs and are not part of the source repository.
+\section{Current Status}
 
-\section{Startup and Path Management}
-
-The file \texttt{startup.m} configures the MATLAB path by adding the project subdirectories required by the current implementation. It avoids relying on the user's current MATLAB path and makes the execution of feature tests repeatable from a clean MATLAB session.
-
-\section{Plant Adapters and Feature Tests}
-
-The plant directory now includes \texttt{b777\_aero\_forces\_moments.m}, which is the first plant-facing aerodynamic load adapter. It completes the atmosphere-dependent quantities required by the coefficient database, computes dynamic pressure, converts wind-axis lift and drag to body-axis force components, scales aerodynamic moments and applies the configured centre-of-gravity shift.
-
-The plant directory also includes \texttt{b777\_engine\_forces\_moments.m}. This
-adapter reads the propulsion seed, computes local maximum and idle thrust from
-altitude and Mach number, maps throttle commands to commanded thrust, evaluates
-the first-order spool derivatives and converts the left and right engine
-thrust states into body-axis forces and moments using the engine positions from
-the geometry module.
-
-The project includes feature-oriented MATLAB checks under \path{tests/features}. The project-structure test checks the expected top-level folders. The modelling-conventions test checks frame definitions, state-vector sizes and input-vector sizes. The aircraft-data test validates the current geometry, mass, inertia, atmosphere and reference-case data. The aerodynamic-database test checks the staged aerodynamic database interface, source inventory, derivative inventory, CRM clean-grid values, DATCOM-ready residual derivative effects, the reproducible DATCOM Mach-grid, control-grid and derived gap-fill candidate status, trim-validation and modal-validation evidence, CRM-HL/DATCOM-ready high-lift metadata, clean/approach/landing behaviour, aerodynamic force signs and the reference-point-to-CG moment shift. These checks are not substitutes for physical validation, but they catch interface errors early.
-
-The engine-loads feature test checks static thrust consistency with the
-geometry module, altitude/Mach thrust lapse, idle-to-maximum throttle mapping,
-symmetric force and pitch-moment generation, asymmetric yaw-moment generation
-and the signs of the first-order thrust-spool derivatives.
-
-\section{Current Implementation Status}
-
-At the current stage, the data layer, aerodynamic plant adapter and propulsion
-load adapter are available. Geometry, mass, inertia, atmosphere and staged
-first-cut aerodynamics have been defined, including the clean CRM Mach-alpha
-grid, DATCOM-ready residual derivative metadata, source-backed DATCOM
-Mach-grid and control-grid derivative candidate run sets, derived gap-fill
-candidates, clean-cruise longitudinal trim-validation and modal-validation
-artifacts, CRM-HL/DATCOM-ready high-lift increments and body-axis aerodynamic
-loads. The propulsion layer now provides an idle-to-maximum throttle map,
-altitude/Mach thrust lapse, first-order spool derivatives and body-axis engine
-forces and moments. The next implementation step is to add control-surface
-actuator dynamics and assemble the nonlinear six-degree-of-freedom equations in
-MATLAB/Simulink.
+At the current stage the project contains the reusable data layer, aerodynamic
+load adapter, propulsion load adapter and control-surface actuator adapter. The
+next implementation step is to assemble the total force and moment build-up and
+integrate the nonlinear six-degree-of-freedom equations in MATLAB/Simulink.

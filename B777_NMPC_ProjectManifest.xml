@@ -59,6 +59,7 @@
       <File>b777_constants.m</File>
       <File>b777_atmosphere_isa.m</File>
       <File>b777_engine_model.m</File>
+      <File>b777_actuator_model.m</File>
       <File>b777_configs.m</File>
       <File>reference_cases.m</File>
     </Folder>
@@ -78,8 +79,8 @@
       <File>B777_6DOF_Plant.slx</File>
       <File>b777_aero_forces_moments.m</File>
       <File>b777_engine_forces_moments.m</File>
+      <File>b777_actuator_dynamics.m</File>
       <File>gear_model.m</File>
-      <File>actuator_model.m</File>
       <File>sensor_model.m</File>
     </Folder>
     <Folder name="nmpc">
@@ -155,6 +156,7 @@
       <File>test_aircraft_data.m</File>
       <File>test_aerodynamic_database.m</File>
       <File>test_engine_loads.m</File>
+      <File>test_actuator_dynamics.m</File>
     </Folder>
     <Folder name="tests">
       <File>run_feature_tests.m</File>

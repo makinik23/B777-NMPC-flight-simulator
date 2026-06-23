@@ -29,3 +29,14 @@ states into body-axis force and moment vectors, including pitching moment from
 vertical thrust-line offset and yawing moment from asymmetric thrust. A feature
 test verifies static thrust consistency, thrust lapse, throttle mapping,
 symmetric and asymmetric load signs and spool-derivative signs.
+
+\section*{Stage 6: Control-Surface Actuator Adapter}
+
+The first actuator model was added for elevator, effective aileron and rudder
+states. It defines engineering-estimate position limits, rate limits and
+first-order time constants, then applies them in a plant-facing adapter that
+maps commanded deflections to actual surface-state derivatives. The adapter
+returns the current actual deflections in the aerodynamic control structure, so
+the aerodynamic database does not silently use commanded values before actuator
+dynamics have responded. A feature test verifies command saturation, rate
+limiting, position-limit blocking and recovery away from limits.
